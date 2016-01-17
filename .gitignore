@@ -4,3 +4,6 @@ Stronghold1891/build/
 Stronghold1891/dist/
 Stronghold1891/sysProps.xml
 Stronghold1891/.classpath
+Stronghold1891/bin/org
+Stronghold1891/bin/*
+*.class

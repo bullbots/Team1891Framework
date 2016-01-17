@@ -1,7 +1,11 @@
 
 package org.usfirst.frc.team1891.drivesystem;
 
+import org.usfirst.frc.team1891.joysticks.JoystickControl;
+
+import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
+import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -13,21 +17,23 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class RobotTest extends IterativeRobot {
-    final String defaultAuto = "Default";
-    final String customAuto = "My Auto";
-    String autoSelected;
-    SendableChooser chooser;
+public class Robot extends IterativeRobot {
+	JoystickControl Joy;
+    DriveSystem Drive;
+
+
 	
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit() {
-        chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        SmartDashboard.putData("Auto choices", chooser);
+System.out.println("robo init");       
+        
+        Drive = new DriveSystem();
+        Joy = new JoystickControl();
+        Drive.init(new CANJaguar(1));
+        Joy.init(new Joystick(0));
     }
     
 	/**
@@ -40,24 +46,15 @@ public class RobotTest extends IterativeRobot {
 	 * If using the SendableChooser make sure to add them to the chooser code above as well.
 	 */
     public void autonomousInit() {
-    	autoSelected = (String) chooser.getSelected();
-//		autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
-		System.out.println("Auto selected: " + autoSelected);
+    	
+		System.out.println("Auto selected: ");
     }
 
     /**
      * This function is called periodically during autonomous
      */
     public void autonomousPeriodic() {
-    	switch(autoSelected) {
-    	case customAuto:
-        //Put custom auto code here   
-            break;
-    	case defaultAuto:
-    	default:
-    	//Put default auto code here
-            break;
-    	}
+    	
     }
 
     /**
@@ -71,7 +68,11 @@ public class RobotTest extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    
+
+    	System.out.println("Test");
+        	System.out.println(Joy.readY());
+        	Drive.move(Joy.readY());
+
     }
     
 }
