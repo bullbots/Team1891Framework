@@ -15,14 +15,17 @@ import edu.wpi.first.wpilibj.IterativeRobot;
 public class Robot extends IterativeRobot {
     Encoder en;
     CANJaguar jag;
-	
+	MachineState stateMachine;
     /**
      * This function is run when the robot is first started up and should be
      * used for any initialization code.
      */
     public void robotInit() {
+    	System.out.println("test");
         en = new Encoder(12, 13, false, Encoder.EncodingType.k4X);
         jag = new CANJaguar(2);
+        stateMachine = new MachineState();
+        
     }
     
 	/**
