@@ -59,7 +59,7 @@ System.out.println("robo init");
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        
+        Drive.move(Joy.readY());
     }
     
     /**
