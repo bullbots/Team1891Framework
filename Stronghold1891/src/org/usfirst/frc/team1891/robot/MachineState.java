@@ -7,7 +7,7 @@ import org.usfirst.frc.team1891.filewriter.LogWriter;
  * @author Tyler
  *
  */
-public class MachineState implements Runnable{
+public class MachineState{
 	//0. Find crossable defense
 	//1. Route path to defense
 	//2. Traverse to defense
@@ -59,14 +59,5 @@ public class MachineState implements Runnable{
 		case 7://End autonomous 
 			break;
 		}
-	}
-	
-	
-	/**
-	 * The run method for this machine state thread.
-	 */
-	public void run() {	
-		LogWriter fw = new LogWriter();
-    	fw.appendMessageToLog("Machine state thread launched.");
 	}
 }
