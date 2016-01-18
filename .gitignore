@@ -7,3 +7,6 @@ Stronghold1891/.classpath
 Stronghold1891/bin/org
 Stronghold1891/bin/*
 *.class
+*.classpath
+*.project
+.project
