@@ -2,7 +2,6 @@
 package org.usfirst.frc.team1891.drivesystem;
 
 import org.usfirst.frc.team1891.joysticks.JoystickControl;
-
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
