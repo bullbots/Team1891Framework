@@ -28,12 +28,12 @@ public class MachineState{
 	 *6. Fire at target, robot should fire the ball.
 	 *7. Look for rebound and begin moving back, at this point the robot should scan the field for a missed shot, if not it should return.
 	 * @return the number of the current state
-	 * @throws InvalidStateError when the state of the machine was invalid
+	 * @throws InvalidStateException when the state of the machine was invalid
 	 */
-	public int getState() throws InvalidStateError{
+	public int getState() throws InvalidStateException{
 		LogWriter fw = new LogWriter();
     	fw.appendErrorToLog("Current State: "+stateNum);
-		if(stateNum<0 || stateNum>7){throw new InvalidStateError();}
+		if(stateNum<0 || stateNum>7){throw new InvalidStateException();}
 		return stateNum;
 	}
 	
