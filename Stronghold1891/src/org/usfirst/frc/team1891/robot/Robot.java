@@ -98,18 +98,19 @@ public class Robot extends IterativeRobot {
      * This function is called periodically during test mode
      */
     public void testPeriodic() {
-    	if(joyMain.getRawButton(0) || testNum==0){
+    	if(joyMain.getRawButton(1) || testNum==0){
     		testNum=0;
     		org.usfirst.frc.team1891.drivesystem.Robot driveRobo = new org.usfirst.frc.team1891.drivesystem.Robot();
     		if(!initCalled){
     			driveRobo.teleopInit();
+    			initCalled=true;
     		}
     		driveRobo.teleopPeriodic();
-    	}else if(joyMain.getRawButton(1) || testNum==1){
+    	}else if(joyMain.getRawButton(2) || testNum==1){
     		testNum=1;
-    	}else if(joyMain.getRawButton(2) || testNum==2){
+    	}else if(joyMain.getRawButton(3) || testNum==2){
     		testNum=2;
-    	}else if(joyMain.getRawButton(3) || testNum==3){
+    	}else if(joyMain.getRawButton(4) || testNum==3){
     		testNum=3;
     	}
     }
