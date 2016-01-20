@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
 import org.usfirst.frc.team1891.drivesystem.*;
-import org.usfirst.frc.team1891.filewriter.*;
+import org.usfirst.frc.team1891.filewriter.LogWriter;
 import org.usfirst.frc.team1891.joysticks.*;
 
 /**
