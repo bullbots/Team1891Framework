@@ -10,3 +10,15 @@ Stronghold1891/bin/*
 *.classpath
 *.project
 .project
+Stronghold1891/bin/org/usfirst/frc/team1891/drivesystem/DriveSystem.class
+Stronghold1891/bin/org/usfirst/frc/team1891/drivesystem/Robot.class
+Stronghold1891/bin/org/usfirst/frc/team1891/joysticks/JoystickControl.class
+Stronghold1891/bin/org/usfirst/frc/team1891/navx/NavXSubsystem.class
+Stronghold1891/bin/org/usfirst/frc/team1891/robot/InvalidStateException.class
+Stronghold1891/bin/org/usfirst/frc/team1891/robot/MachineState.class
+Stronghold1891/bin/org/usfirst/frc/team1891/robot/Robot.class
+Stronghold1891/bin/org/usfirst/frc/team1891/filewriter/LogWriter.class
+Stronghold1891/bin/org/usfirst/frc/team1891/motorcontroller/Jaguar.class
+Stronghold1891/bin/org/usfirst/frc/team1891/PIDsubsystems/PID.class
+Stronghold1891/bin/org/usfirst/frc/team1891/visionsystem/VisionTracking.class
+Stronghold1891/.classpath
