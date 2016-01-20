@@ -31,6 +31,7 @@ public class Robot extends IterativeRobot {
      * used for any initialization code.
      */
     public void robotInit() {
+    	log = new LogWriter();
     	log.appendMessageToLog("Robot init started");
     	joy = new JoystickControl();
         jag = new CANJaguar(2);
