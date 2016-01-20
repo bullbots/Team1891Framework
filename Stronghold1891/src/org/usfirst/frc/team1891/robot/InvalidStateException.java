@@ -7,12 +7,12 @@ import org.usfirst.frc.team1891.filewriter.*;
  *
  */
 @SuppressWarnings("serial")
-public class InvalidStateError extends Exception {
+public class InvalidStateException extends Exception {
 	
 	/**
      * Thrown when there is an invalid state.
      */
-    public InvalidStateError ()
+    public InvalidStateException ()
     {
     	super ("The state was invalid");
     	LogWriter fw = new LogWriter();
