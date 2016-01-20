@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Robot extends IterativeRobot {
 	JoystickControl Joy;
     DriveSystem Drive;
-    CANJaguar jag1;
 
 	
     /**
@@ -31,14 +30,16 @@ System.out.println("robo init");
         
         Drive = new DriveSystem();
         Joy = new JoystickControl();
-        jag1 = new CANJaguar(1);
-//        Drive.init(new CANJaguar(1), new CANJaguar(5), new CANJaguar(4), new CANJaguar(6));
+        Drive.init(new CANJaguar(1), new CANJaguar(5), new CANJaguar(4), new CANJaguar(6));
         Joy.init(new Joystick(0));
     }
     
     public void teleopInit()
     {
-    	jag1.set(0);
+    	Drive = new DriveSystem();
+        Joy = new JoystickControl();
+        Drive.init(new CANJaguar(1), new CANJaguar(5), new CANJaguar(4), new CANJaguar(6));
+        Joy.init(new Joystick(0));
     }
     
 	/**
@@ -50,7 +51,6 @@ System.out.println("robo init");
 	 * If using the SendableChooser make sure to add them to the chooser code above as well.
 	 */
     public void autonomousInit() {
-    	jag1.set(0);
 		System.out.println("Auto selected: ");
     }
 
@@ -65,8 +65,7 @@ System.out.println("robo init");
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-//        Drive.move(Joy.readX(), Joy.readY());
-    	jag1.set(1);
+        Drive.move(Joy.readX(), Joy.readY());
     }
     
     /**
