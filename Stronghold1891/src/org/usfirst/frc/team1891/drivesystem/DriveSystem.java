@@ -44,10 +44,26 @@ public class DriveSystem {
 	}
 	
 	/**
+	 * @param x 
 	 * @param y
 	 */
-	public void move(double y)
+	public void move(double x, double y)
 	{
-		jagControl.setSpeed(y, jag1);
+		double leftSide = (x-y);
+		double rightSide = (x+y);
+		jagControl.setSpeed(leftSide, jag1);
+		jagControl.setSpeed(leftSide, jag2);
+		jagControl.setSpeed(rightSide, jag3);
+		jagControl.setSpeed(rightSide, jag4);
 	}
+	
+	/**
+	 * For spinning a single wheel
+	 * @param power
+	 */
+	public void spinWheel(double power)
+	{
+		jagControl.setSpeed(power, jag1);
+	}
+	
 }
