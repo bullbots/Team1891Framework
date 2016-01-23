@@ -20,7 +20,6 @@ public class Robot extends IterativeRobot {
 	JoystickControl Joy;
     DriveSystem Drive;
 
-
 	
     /**
      * This function is run when the robot is first started up and should be
@@ -31,7 +30,15 @@ System.out.println("robo init");
         
         Drive = new DriveSystem();
         Joy = new JoystickControl();
-        Drive.init(new CANJaguar(1));
+        Drive.init(new CANJaguar(1), new CANJaguar(5), new CANJaguar(4), new CANJaguar(6));
+        Joy.init(new Joystick(0));
+    }
+    
+    public void teleopInit()
+    {
+    	Drive = new DriveSystem();
+        Joy = new JoystickControl();
+        Drive.init(new CANJaguar(1), new CANJaguar(5), new CANJaguar(4), new CANJaguar(6));
         Joy.init(new Joystick(0));
     }
     
@@ -44,7 +51,6 @@ System.out.println("robo init");
 	 * If using the SendableChooser make sure to add them to the chooser code above as well.
 	 */
     public void autonomousInit() {
-    	
 		System.out.println("Auto selected: ");
     }
 
@@ -59,7 +65,7 @@ System.out.println("robo init");
      * This function is called periodically during operator control
      */
     public void teleopPeriodic() {
-        
+        Drive.move(Joy.readX(), Joy.readY());
     }
     
     /**
@@ -69,7 +75,7 @@ System.out.println("robo init");
 
     	System.out.println("Test");
         	System.out.println(Joy.readY());
-        	Drive.move(Joy.readY());
+        	Drive.move(Joy.readX(), Joy.readY());
 
     }
     
