@@ -10,3 +10,4 @@ Stronghold1891/bin/*
 *.classpath
 *.project
 .project
+mockito/
