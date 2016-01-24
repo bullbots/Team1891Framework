@@ -1,6 +1,8 @@
 package org.usfirst.frc.team1891.drivesystem;
 
 import edu.wpi.first.wpilibj.CANJaguar;
+
+import org.usfirst.frc.team1891.joysticks.JoyVector;
 import org.usfirst.frc.team1891.motorcontroller.Jaguar;
 
 /**
@@ -44,26 +46,41 @@ public class DriveSystem {
 	}
 	
 	/**
-	 * @param x 
-	 * @param y
+	 * This method sets the jag speed values.
+	 * @param vector
 	 */
-	public void move(double x, double y)
+	public void moveTank(JoyVector vector)
 	{
-		double leftSide = (x-y);
-		double rightSide = (x+y);
+		double x = vector.getX_comp();
+		double y = vector.getY_comp();
+		double leftSide = (x-y) * scaleTank(x,y);
+		double rightSide = (x+y) * scaleTank(x,y);
 		jagControl.setSpeed(leftSide, jag1);
 		jagControl.setSpeed(leftSide, jag2);
 		jagControl.setSpeed(rightSide, jag3);
 		jagControl.setSpeed(rightSide, jag4);
+		
 	}
 	
 	/**
-	 * For spinning a single wheel
-	 * @param power
+	 * This method makes sure the set speed on any jag does not exceed the max value.
+	 * @param x
+	 * @param y
+	 * @return the the damp for the tank drive
 	 */
-	public void spinWheel(double power)
+	public double scaleTank(double x, double y)
 	{
-		jagControl.setSpeed(power, jag1);
+		double max = 1;
+		double right = Math.abs(y + x);
+		double left = Math.abs(y+ x);
+		if (left>1&&left>right){
+			max = 1/left;
+		}
+		if (right>1&&right>left){
+			max = 1/right;
+		}
+		return max * .5;
+		
 	}
 	
 }

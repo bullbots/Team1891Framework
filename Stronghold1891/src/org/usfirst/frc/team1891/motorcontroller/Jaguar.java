@@ -15,6 +15,7 @@ public class Jaguar {
 	public void setMode(CANJaguar jag)
 	{
 		jag.setPercentMode();
+		jag.enable();
 	}
 	
 	/**
