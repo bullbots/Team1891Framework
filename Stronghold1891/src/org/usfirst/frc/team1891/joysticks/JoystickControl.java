@@ -14,7 +14,9 @@ public class JoystickControl {
 	double y;
 	double z;
 	double angle;
-	boolean a = false;
+	boolean press = false;
+	boolean release = true;
+	boolean a = true;
 	int aCount = 0;
 	Timer time = new Timer();
 	
@@ -28,7 +30,7 @@ public class JoystickControl {
 /**
  * updates all of the data from the joystick and passes it to JoyVector
  */
-	public void getData()
+	public JoyVector getData()
 	{
 		switch(getProfile()){
 		case 0:
@@ -50,7 +52,7 @@ public class JoystickControl {
 		break;
 		
 		}
-		vector = new JoyVector(x, y, z, angle);
+		return vector = new JoyVector(x, y, z, angle);
 	}
 	
 	/**
@@ -102,13 +104,27 @@ public class JoystickControl {
 	 */
 	
 	public void rumble(){
-		if (!a && button(1)){
+		if (!press && release && button(1) && a){
+			press=true;
+			release = false;
 			setRumble();
-			a=true;
+			System.out.println("Start");
 		}
-		if (a && !button(1)){
+		else if (press && !release && !button(1) && a){
+			press=false;
+			System.out.println("released");
+			a = false;
+		}
+		else if (!press && !release && button(1) && !a){
+			press = true;
 			stopRumble();
-			a=false;
+			System.out.println("Stop");
+		}
+		else if (press && !release && !button(1) && !a){
+			press = false;
+			release = true;
+			a = true;
+			System.out.println("released again");
 		}
 	}
 	
