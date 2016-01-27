@@ -1,90 +1,130 @@
 package org.usfirst.frc.team1891.drivesystem;
-
-import edu.wpi.first.wpilibj.CANJaguar;
-
+import java.util.LinkedList;
+import org.usfirst.frc.team1891.filewriter.*;
 import org.usfirst.frc.team1891.joysticks.JoyVector;
-import org.usfirst.frc.team1891.motorcontroller.Jaguar;
+
+import edu.wpi.first.wpilibj.Timer;
 
 /**
- * @author Egan Schafer
+ * @author Egan Schafer, Tyler Manning
  *
  */
 public class DriveSystem {
 	
-	Jaguar jagControl;
-	CANJaguar jag1;
-	CANJaguar jag2;
-	CANJaguar jag3;
-	CANJaguar jag4;
-	int ramp = 100;
+	private static LinkedList<MotorAndSide> motorList= null;
+	private double rampRate=0;
+	LogWriter log = new LogWriter();
+	Timer rampTime = new Timer();//Timer used for the rampRate. 
+	private int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
+	private int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
+	/**
+	 * @author Tyler
+	 *Enumeration with all the different drive system.
+	 *Can be easily expanded for more use. Commented drive systems are not in use.
+	 *You will also need to expand the set drive system method if more drive systems are added.
+	 */
+	public enum driveModes {
+			/**
+			 *The tank drive system.
+			 */
+			TANK_DRIVE,
+			TANK_DRIVE_PID
+//			MECHNINUM_DRIVE,
+//			OMNI_DRIVE,
+//			TWO_WHEEL_DRIVE
+	};
+	
+	private driveModes currentDrive;
 	
 	/**
-	 * @param jag
+	 * The input of all motors on the current system, ensure that all motors have been instantiated
+	 * @param motorList a list of ALL motors on the current system.
 	 */
-	public void init(CANJaguar jag)
-	{
-		jag1 = jag;
+	public DriveSystem(LinkedList<MotorAndSide> motorList){
+		this.motorList=motorList;
 	}
+
 	/**
-	 * Used to pass all the drive jaguars to the driveSystem.
-	 * @param jaguar1 the first jag passed to driveSystem, motor must be on left side
-	 * @param jaguar2 the second jag passed to driveSystem, motor must be on left side
-	 * @param jaguar3 the third jag passed to driveSystem, motor must be on right side
-	 * @param jaguar4 the fourth jag passed to driveSystem, motor must be on right side
+	 * This method is used to set the rampRate for a specific robot, it is on a scal of 0-1.
+	 * The ramp rate is used to control how fast the motor speeds up my multiplying joystick input by a scalar.
+	 * As time goes on the ramp rate will eventually hit 100, so the set ramp rate is just the initial value of the ramp rate.
+	 * @param rampRate should be used to set the ramp rate for a specific robot.
+	 * @throws InvalidRampRateException when the input is not between 0.0 and 1.0
 	 */
-	public void init(CANJaguar jaguar1, CANJaguar jaguar2, CANJaguar jaguar3, CANJaguar jaguar4)
-	{
-		jag1 = jaguar1;
-		jag2 = jaguar2;
-		jag3 = jaguar3;
-		jag4 = jaguar4;
-		jagControl = new Jaguar();
-		jagControl.initPercent(jag1);
-		jagControl.initPercent(jag2);
-		jagControl.initPercent(jag3);
-		jagControl.initPercent(jag4);
-		jag1.setVoltageRampRate(ramp);
-		jag2.setVoltageRampRate(ramp);
-		jag3.setVoltageRampRate(ramp);
-		jag4.setVoltageRampRate(ramp);
-		
-		
-	}
-	
-	/**
-	 * This method sets the jag speed values.
-	 * @param vector
-	 */
-	public void moveTank(JoyVector data1)
-	{
-		double x = data1.getX_comp();
-		double y = data1.getY_comp();
-		double leftSide = (x-y) * scaleTank(x,y);
-		double rightSide = (x+y) * scaleTank(x,y);
-		jagControl.setPercentage(leftSide, jag1);
-		jagControl.setPercentage(leftSide, jag2);
-		jagControl.setPercentage(rightSide, jag3);
-		jagControl.setPercentage(rightSide, jag4);
+	public void setRampRate(double rampRate) throws InvalidRampRateException {
+		if(rampRate>1.0){throw new InvalidRampRateException();}
+		this.rampRate = rampRate;
 	}
 	
 	/**
-	 * This method makes sure the set speed on any jag does not exceed the max value.
-	 * @param x
-	 * @param y
-	 * @return the the damp for the tank drive
+	 * Sets the drive system for the current instance of the robot.
+	 * @param drive the drive system of the robot.
 	 */
-	public double scaleTank(double x, double y)
-	{
-		double max = 1;
-		double right = Math.abs(y + x);
-		double left = Math.abs(y+ x);
-		if (left>1&&left>right){
-			max = 1/left;
+	public void setDriveSystem(driveModes drive){
+		switch(drive){
+		case TANK_DRIVE:
+			log.appendMessageToLog("Tank drive choosen");
+			currentDrive=driveModes.TANK_DRIVE;
+		case TANK_DRIVE_PID:
+			log.appendMessageToLog("Tank drive with PID choosen");
+			currentDrive=driveModes.TANK_DRIVE_PID;
+			break;
 		}
-		if (right>1&&right>left){
-			max = 1/right;
+	}
+	
+	/**
+	 * Advances the drive system given a vector from org.usfirst.frc.team1891.joysticks.
+	 * This method should be used primarily in telop as autonomous drive will operate differently.
+	 * @param vec the vector to drive on.
+	 */
+	public void drive(JoyVector vec){
+		switch(currentDrive){
+		case TANK_DRIVE://Copy case statements for different drive systems.
+			driveTankDrive(vec);
+			break;
+		case TANK_DRIVE_PID:
+			driveTankDrivePID(vec);
+		default:
+			break;
 		}
-		return max * .4;
+	}
+
+	/**
+	 * Method to configure the inverseness of the right side of the robot.
+	 * @param invrt true if the right side needs negative voltage, false if positive voltage.
+	 */
+	public void setRightSideInverse(boolean invrt){
+		if(invrt){
+			rightSideReverse=-1;
+		}else{
+			rightSideReverse=1;
+		}
+	}
+	
+	/**
+	 * Method to configure the inverseness of the right side of the robot.
+	 * @param invrt true if the left side needs negative voltage, false if positive voltage.
+	 */
+	public void setLeftSideInverse(boolean invrt){
+		if(invrt){
+			leftSideReverse=-1;
+		}else{
+			leftSideReverse=1;
+		}
+	}
+	
+	private static void driveTankDrive(JoyVector vec){
+		for(MotorAndSide m: motorList){
+			if(m.jag!=null){
+				m.getJag();
+			}else if(m.talonSRX!=null){
+				
+			}
+		}
+	}
+	
+	private static void driveTankDrivePID(JoyVector vec) {
+		// TODO Auto-generated method stub
 		
 	}
 	
