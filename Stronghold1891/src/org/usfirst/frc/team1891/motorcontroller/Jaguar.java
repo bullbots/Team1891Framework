@@ -8,12 +8,15 @@ import edu.wpi.first.wpilibj.CANJaguar;
  */
 public class Jaguar {
 	 int codesPerRev;
+	 CANJaguar jag;
 
 	/**
 	 *initializes a few varibles 
+	 * @param jag Jaguar being controlled
 	 */
-	public Jaguar()
+	public Jaguar(CANJaguar jag)
 	{
+		this.jag = jag;
 		 codesPerRev = 270;
 	}
 	
@@ -32,9 +35,8 @@ public class Jaguar {
 	
 	/**
 	 * Initializes a jag in percentage mode with PID enabled 
-	 * @param jag specifies the jag to be set
 	 */
-	public void initPercentPID(CANJaguar jag)
+	public void initPercentPID()
 	{
 		jag.setPercentMode(CANJaguar.kQuadEncoder, codesPerRev);
 		jag.enableControl();
@@ -43,9 +45,8 @@ public class Jaguar {
 	/**
 	 * Sets percentage of power used for a PID percentage motor.
 	 * @param power power the 1 to -1 value of motor power
-	 * @param jag specifies the jag to be set
 	 */
-	public void setPercentagePID(double power, CANJaguar jag)
+	public void setPercentagePID(double power)
 	{
 		jag.set(power);
 	}
@@ -53,9 +54,8 @@ public class Jaguar {
 	/**
 	 * Sets specified jag to percent mode without PID and enables it.
 	 * Sets the mode of a jag to percentage mode
-	 * @param jag specifies the jag to be set
 	 */
-	public void initPercent(CANJaguar jag)
+	public void initPercent()
 	{
 		jag.setPercentMode();
 		jag.enableControl();
@@ -64,19 +64,18 @@ public class Jaguar {
 	/**
 	 * sets the percentage power of motor output
 	 * @param power the 1 to -1 value of motor power
-	 * @param jag specifies the jag to be set
 	 */
-	public void setPercentage(double power, CANJaguar jag)
+	public void setPercentage(double power)
 	{
 		jag.set(power);
 	}
 	
 	/** 
 	 * Sets specified jag to position mode with PID and enables control on it.
-	 * @param jag specifies the jag to be set
+
 	 * 
 	 */
-	public void initPositionPID(CANJaguar jag)
+	public void initPositionPID()
 	{
 		jag.setSpeedMode(CANJaguar.kQuadEncoder, codesPerRev, 0.1, 0.01, 0);
 		jag.enableControl();
@@ -84,21 +83,19 @@ public class Jaguar {
 	
 	/** 
 	 * Sets a postion for the jag to move motor to.
-	 * @param jag specifies the jag to be set
 	 * @param postion specifies a position for a jag to be set to
 	 * 
 	 */
-	public void setPositionPID(double postion, CANJaguar jag)
+	public void setPositionPID(double postion)
 	{
 		jag.set(postion);;
 	}
 	
 	/**
 	 * Sets specified jag to voltage mode with PID and enables it.
-	 * @param jag specifies the jag to be set
 	 * 
 	 */
-	public void initVoltagePID(CANJaguar jag)
+	public void initVoltagePID()
 	{
 		jag.setVoltageMode(CANJaguar.kQuadEncoder, codesPerRev);
 		jag.enableControl();
@@ -106,20 +103,18 @@ public class Jaguar {
 	
 	/**
 	 * Sets the voltage output for the specified jag.
-	 * @param jag specifies the jag to be set
 	 * @param volt specifies a voltage to set motor to be set
 	 * 
 	 */
-	public void setVoltagePID(double volt, CANJaguar jag)
+	public void setVoltagePID(double volt)
 	{
 		jag.set(volt);
 	}
 	
 	/**
 	 * Sets specified jag to voltage mode without PID and enables it.
-	 * @param jag specifies the jag to be set
 	 */
-	public void initVoltage(CANJaguar jag)
+	public void initVoltage()
 	{
 		jag.setVoltageMode();
 		jag.enableControl();
@@ -127,10 +122,9 @@ public class Jaguar {
 	
 	/**
 	 * Sets the voltage output for the specified jag.
-	 * @param jag specifies the jag to be set
 	 * @param volt specifies a voltage to set motor to be set
 	 */
-	public void setVoltage(double volt, CANJaguar jag)
+	public void setVoltage(double volt)
 	{
 		jag.set(volt);
 	}
