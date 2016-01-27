@@ -16,6 +16,7 @@ public class DriveSystem {
 	CANJaguar jag2;
 	CANJaguar jag3;
 	CANJaguar jag4;
+	int ramp = 100;
 	
 	/**
 	 * @param jag
@@ -42,6 +43,11 @@ public class DriveSystem {
 		jagControl.setMode(jag2);
 		jagControl.setMode(jag3);
 		jagControl.setMode(jag4);
+		jag1.setVoltageRampRate(ramp);
+		jag2.setVoltageRampRate(ramp);
+		jag3.setVoltageRampRate(ramp);
+		jag4.setVoltageRampRate(ramp);
+		
 		
 	}
 	
@@ -79,7 +85,7 @@ public class DriveSystem {
 		if (right>1&&right>left){
 			max = 1/right;
 		}
-		return max * .5;
+		return max * .4;
 		
 	}
 	

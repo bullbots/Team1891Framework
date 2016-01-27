@@ -8,11 +8,12 @@ import edu.wpi.first.wpilibj.Joystick.RumbleType;
  *
  */
 public class JoystickControl {
-	
+	double DEADZONE = 0.05;
 	double x;
 	double y;
 	double z;
 	double angle;
+	boolean a;
 	
 	Joystick Stick;
 	/**
@@ -29,21 +30,23 @@ public class JoystickControl {
 		case 0:
 			System.out.println("Not a supported controller!");
 		break;
+		//xbox 360
 		case 1:
-			x = readX();
-			y = readY();
+			x = axis(0);
+			y = axis(1);
 			z = 0;
 			angle = 0;
+			a = 
 		break;
+		//Logitech Attack
 		case 2:
-			x = readX();
-			y = readY();
+			x = axis(0);
+			y = axis(1);
 			z = 0;
 			angle = 0;
 		break;
 		
 		}
-		System.out.println(x + " " + y);
 		vector = new JoyVector(x, y, z, angle);
 	}
 	
@@ -54,29 +57,22 @@ public class JoystickControl {
 	public void init(Joystick Joy)
 	{
 		Stick = Joy;
+		
 	}
 	
 	/**
-	 * @return value for y axis
+	 * @param axis is the axis you want to read
+	 * @return value for an axis
 	 */
-	public double readY()
+	public double axis(int axis)
 	{
-		//double yValue = Stick.getY();
-		if (Math.abs(Stick.getRawAxis(1))>.05)return Stick.getRawAxis(1);
+		if (Math.abs(Stick.getRawAxis(axis))>DEADZONE)return Stick.getRawAxis(axis);
 		return 0;
 	}
+	public boolean 
 	
 	/**
-	 * @return value for x axis
-	 */
-	public double readX(){
-		//return Stick.getRawAxis(3)-Stick.getRawAxis(2);
-		if (Math.abs(Stick.getRawAxis(0))>.05)return Stick.getRawAxis(0);
-		return 0;
-	}
-	
-	/**
-	 * This method identifies what type of joystick is plugged in. X is 1, 
+	 * This method identifies what type of joystick is plugged in. Xbox 360 is 1. Logitech Attack is 2.
 	 * @return value for joystick type index
 	 */
 	public int getProfile()
