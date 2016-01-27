@@ -37,7 +37,7 @@ public class Jaguar {
 	public void initPercentPID(CANJaguar jag)
 	{
 		jag.setPercentMode(CANJaguar.kQuadEncoder, codesPerRev);
-		jag.enable();
+		jag.enableControl();
 	}
 	
 	/**
@@ -58,7 +58,7 @@ public class Jaguar {
 	public void initPercent(CANJaguar jag)
 	{
 		jag.setPercentMode();
-		jag.enable();
+		jag.enableControl();
 	}
 	
 	/**
@@ -101,7 +101,7 @@ public class Jaguar {
 	public void initVoltagePID(CANJaguar jag)
 	{
 		jag.setVoltageMode(CANJaguar.kQuadEncoder, codesPerRev);
-		jag.enable();
+		jag.enableControl();
 	}
 	
 	/**
@@ -122,7 +122,7 @@ public class Jaguar {
 	public void initVoltage(CANJaguar jag)
 	{
 		jag.setVoltageMode();
-		jag.enable();
+		jag.enableControl();
 	}
 	
 	/**
