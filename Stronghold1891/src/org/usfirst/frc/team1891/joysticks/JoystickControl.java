@@ -14,7 +14,7 @@ public class JoystickControl {
 	double y;
 	double z;
 	double angle;
-	boolean a;
+	boolean a = false;
 	int aCount = 0;
 	Timer time = new Timer();
 	
@@ -36,8 +36,8 @@ public class JoystickControl {
 		break;
 		//xbox 360
 		case 1:
-			x = axis(0);
-			y = axis(1);
+			x = axis(0)*0;
+			y = axis(1)*0;
 			z = 0;
 			angle = 0;
 		break;
@@ -102,8 +102,14 @@ public class JoystickControl {
 	 */
 	
 	public void rumble(){
-		time.start();
-		System.out.println(time.get());
+		if (!a && button(1)){
+			setRumble();
+			a=true;
+		}
+		if (a && !button(1)){
+			stopRumble();
+			a=false;
+		}
 	}
 	
 	/**
