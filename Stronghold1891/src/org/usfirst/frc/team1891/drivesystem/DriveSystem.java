@@ -39,10 +39,10 @@ public class DriveSystem {
 		jag3 = jaguar3;
 		jag4 = jaguar4;
 		jagControl = new Jaguar();
-		jagControl.setMode(jag1);
-		jagControl.setMode(jag2);
-		jagControl.setMode(jag3);
-		jagControl.setMode(jag4);
+		jagControl.initPercent(jag1);
+		jagControl.initPercent(jag2);
+		jagControl.initPercent(jag3);
+		jagControl.initPercent(jag4);
 		jag1.setVoltageRampRate(ramp);
 		jag2.setVoltageRampRate(ramp);
 		jag3.setVoltageRampRate(ramp);
@@ -55,17 +55,16 @@ public class DriveSystem {
 	 * This method sets the jag speed values.
 	 * @param vector
 	 */
-	public void moveTank(JoyVector vector)
+	public void moveTank(JoyVector data1)
 	{
-		double x = vector.getX_comp();
-		double y = vector.getY_comp();
+		double x = data1.getX_comp();
+		double y = data1.getY_comp();
 		double leftSide = (x-y) * scaleTank(x,y);
 		double rightSide = (x+y) * scaleTank(x,y);
-		jagControl.setSpeed(leftSide, jag1);
-		jagControl.setSpeed(leftSide, jag2);
-		jagControl.setSpeed(rightSide, jag3);
-		jagControl.setSpeed(rightSide, jag4);
-		
+		jagControl.setPercentage(leftSide, jag1);
+		jagControl.setPercentage(leftSide, jag2);
+		jagControl.setPercentage(rightSide, jag3);
+		jagControl.setPercentage(rightSide, jag4);
 	}
 	
 	/**

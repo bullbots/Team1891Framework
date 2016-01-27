@@ -9,7 +9,7 @@ import edu.wpi.first.wpilibj.Solenoid;
  * @author Tyler
  *Pneumatics controller software.
  */
-public class pnController {
+public class PnController {
 	
 	LinkedList<Solenoid> solenoids;
 	LinkedList<Compressor> compressors;
@@ -19,7 +19,7 @@ public class pnController {
 	 * @param solenoids a list of all solenoids currently on the system.
 	 * @param compressors a list of all compressors currently on the system.
 	 */
-	public pnController(LinkedList<Solenoid> solenoids, LinkedList<Compressor> compressors){
+	public PnController(LinkedList<Solenoid> solenoids, LinkedList<Compressor> compressors){
 		this.solenoids=solenoids;
 		this.compressors=compressors;
 	}
