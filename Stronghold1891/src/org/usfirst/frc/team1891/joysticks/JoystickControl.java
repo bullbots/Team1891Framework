@@ -2,6 +2,7 @@ package org.usfirst.frc.team1891.joysticks;
 
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.RumbleType;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * @author 408robot
@@ -14,6 +15,9 @@ public class JoystickControl {
 	double z;
 	double angle;
 	boolean a;
+	int aCount = 0;
+	Timer time = new Timer();
+	
 	
 	Joystick Stick;
 	/**
@@ -36,7 +40,6 @@ public class JoystickControl {
 			y = axis(1);
 			z = 0;
 			angle = 0;
-			a = 
 		break;
 		//Logitech Attack
 		case 2:
@@ -69,7 +72,10 @@ public class JoystickControl {
 		if (Math.abs(Stick.getRawAxis(axis))>DEADZONE)return Stick.getRawAxis(axis);
 		return 0;
 	}
-	public boolean 
+	public boolean button(int button)
+	{
+		return Stick.getRawButton(button);
+	}
 	
 	/**
 	 * This method identifies what type of joystick is plugged in. Xbox 360 is 1. Logitech Attack is 2.
@@ -92,7 +98,16 @@ public class JoystickControl {
 	
 	
 	/**
-	 * sets the joystick rumble pack to on
+	 * IGNORE EVERYTHING BENEATH THIS, IT'S JUST FOR TESTING
+	 */
+	
+	public void rumble(){
+		time.start();
+		System.out.println(time.get());
+	}
+	
+	/**
+	 * sets the joystick rumble pack
 	 */
 	public void setRumble(){
 		Stick.setRumble(RumbleType.kLeftRumble, 1);
