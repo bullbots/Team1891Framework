@@ -8,8 +8,6 @@ Stronghold1891/bin/org
 Stronghold1891/bin/*
 *.class
 *.classpath
-*.project
-.project
 mockito/
 Stronghold1891/bin/org/usfirst/frc/team1891/drivesystem/DriveSystem.class
 Stronghold1891/bin/org/usfirst/frc/team1891/drivesystem/Robot.class

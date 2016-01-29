@@ -10,13 +10,13 @@ import edu.wpi.first.wpilibj.Timer;
  *
  */
 public class DriveSystem {
-	
+
 	private static LinkedList<MotorAndSide> motorList= null;
-	private double rampRate=0;
+	private static double rampRate=0.1;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
-	private int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
-	private int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
+	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
+	private static int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
 	/**
 	 * @author Tyler
 	 *Enumeration with all the different drive system.
@@ -24,18 +24,18 @@ public class DriveSystem {
 	 *You will also need to expand the set drive system method if more drive systems are added.
 	 */
 	public enum driveModes {
-			/**
-			 *The tank drive system.
-			 */
-			TANK_DRIVE,
-			TANK_DRIVE_PID
-//			MECHNINUM_DRIVE,
-//			OMNI_DRIVE,
-//			TWO_WHEEL_DRIVE
+		/**
+		 *The tank drive system.
+		 */
+		TANK_DRIVE,
+		TANK_DRIVE_PID
+		//			MECHNINUM_DRIVE,
+		//			OMNI_DRIVE,
+		//			TWO_WHEEL_DRIVE
 	};
-	
+
 	private driveModes currentDrive;
-	
+
 	/**
 	 * The input of all motors on the current system, ensure that all motors have been instantiated
 	 * @param motorList a list of ALL motors on the current system.
@@ -55,7 +55,7 @@ public class DriveSystem {
 		if(rampRate>1.0){throw new InvalidRampRateException();}
 		this.rampRate = rampRate;
 	}
-	
+
 	/**
 	 * Sets the drive system for the current instance of the robot.
 	 * @param drive the drive system of the robot.
@@ -65,13 +65,14 @@ public class DriveSystem {
 		case TANK_DRIVE:
 			log.appendMessageToLog("Tank drive choosen");
 			currentDrive=driveModes.TANK_DRIVE;
+			break;
 		case TANK_DRIVE_PID:
 			log.appendMessageToLog("Tank drive with PID choosen");
 			currentDrive=driveModes.TANK_DRIVE_PID;
 			break;
 		}
 	}
-	
+
 	/**
 	 * Advances the drive system given a vector from org.usfirst.frc.team1891.joysticks.
 	 * This method should be used primarily in telop as autonomous drive will operate differently.
@@ -84,6 +85,7 @@ public class DriveSystem {
 			break;
 		case TANK_DRIVE_PID:
 			driveTankDrivePID(vec);
+			break;
 		default:
 			break;
 		}
@@ -100,7 +102,7 @@ public class DriveSystem {
 			rightSideReverse=1;
 		}
 	}
-	
+
 	/**
 	 * Method to configure the inverseness of the right side of the robot.
 	 * @param invrt true if the left side needs negative voltage, false if positive voltage.
@@ -112,20 +114,67 @@ public class DriveSystem {
 			leftSideReverse=1;
 		}
 	}
-	
+
 	private static void driveTankDrive(JoyVector vec){
+//		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("RIGHT", vec)*12;
+//		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("LEFT", vec)*12;
+//		System.out.println("Right Side Power "+ rightSideSet);
+//		System.out.println("Left Side Power "+ leftSideSet);
+		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*12;
+		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*12;
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
-				m.getJag();
+				if(m.side.equals("RIGHT")){
+					m.getJag().setVoltage(rightSideSet);
+				}else{
+					m.getJag().setVoltage(leftSideSet);
+				}
 			}else if(m.talonSRX!=null){
-				
+				//TODO: talon code.
+				if(m.side.equals("RIGHT")){
+
+				}else{
+
+				}
 			}
 		}
+		//TODO deal with rampRate
 	}
-	
+
+	private static double computeThetaScalar(String side, JoyVector vec) {
+		double angle = vec.getAngle();
+		if(side.equals("RIGHT")){//return a value for the right side.
+			if(angle >= -90 && angle<=90){//if the robot needs to turn right
+				angle=(angle/90);
+				return (1-angle);
+			}else{//if the robot needs to turn left
+				angle=(angle/90);
+				return (angle);
+			}
+		}else if(side.equals("LEFT")){//return a value for the left side.
+			if(angle <= -90 && angle>=90){//if the robot needs to turn right
+				angle=(angle/90);
+				return (angle);
+			}else{//if the robot needs to turn left
+				angle=(angle/90);
+				return (1-angle);
+			}
+		}
+		return 0;
+	}
+
 	private static void driveTankDrivePID(JoyVector vec) {
-		// TODO Auto-generated method stub
-		
+
 	}
 	
+	/**
+	 * Enables all the motors in their correct mode.
+	 */
+	public void enableAll(){
+		//TODO: enable all types of motors and in the correct mode.
+		for(MotorAndSide m : motorList){
+			m.getJag().initVoltage();
+		}
+	}
+
 }
