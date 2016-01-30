@@ -50,6 +50,7 @@ public class JoystickControl {
 			y = axis(1);
 			z = 0;
 			angle = getAngle(x,-y);
+			System.out.println(angle);
 		break;
 		
 		}
@@ -75,6 +76,11 @@ public class JoystickControl {
 		return 0;
 	}
 	
+	/**
+	 * @param xcom
+	 * @param ycom
+	 * @return angle
+	 */
 	public double getAngle(double xcom, double ycom){
 		double angle = Math.PI/2;
 		if(Math.abs(xcom)<0.01&&ycom>.01){
@@ -98,11 +104,15 @@ public class JoystickControl {
 			}
 		}
 		else if(xcom<-0.01&&Math.atan(ycom/xcom)!=0){
-			angle = Math.atan(ycom/xcom);
+			angle = Math.atan(ycom/xcom)+Math.PI;
 		}
 		return Math.toDegrees(angle);
 	}
 	
+	/**
+	 * @param button
+	 * @return if button is pressed
+	 */
 	public boolean button(int button)
 	{
 		return Stick.getRawButton(button);
@@ -159,6 +169,7 @@ public class JoystickControl {
 	
 	/**
 	 * sets the joystick rumble pack
+	 * @param isOn true is if you want rumble, false is if you don't
 	 */
 	public void setRumble(boolean isOn){
 		if(isOn){
