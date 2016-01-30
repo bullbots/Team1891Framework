@@ -119,12 +119,16 @@ public class DriveSystem {
 	}
 
 	private static void driveTankDrive(JoyVector vec){
-		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("RIGHT", vec)*12;
-		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("LEFT", vec)*12;
-		//		System.out.println("Right Side Power "+ rightSideSet);
-		//		System.out.println("Left Side Power "+ leftSideSet);
-		//		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*12;
-		//		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*12;
+		double rightTheta=computeThetaScalar("RIGHT", vec);
+		double leftTheta = computeThetaScalar("LEFT", vec);
+
+		System.out.println("Right side scalar: "+rightTheta);
+		double vecComponantScalar =Math.sqrt(Math.pow(vec.getY_comp(), 2)+Math.pow(vec.getX_comp(), 2));
+		
+		double rightSideScalar=(rightSideReverse*rampRate*vecComponantScalar*rightTheta);
+		double leftSideScalar=(leftSideReverse*rampRate*vecComponantScalar*leftTheta);
+		double rightSideSet=rightSideScalar*12;
+		double leftSideSet=leftSideScalar*12;
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
@@ -146,35 +150,63 @@ public class DriveSystem {
 
 	private static double computeThetaScalar(String side, JoyVector vec) {
 		//		double angle = vec.getAngle(); TODO tell josh to calculate the error.
-		double angle = Math.atan2(vec.getY_comp(), vec.getX_comp());
-		angle=-1*Math.toDegrees(angle);
+		
+		double angle = -Math.atan2(vec.getY_comp(), vec.getX_comp())*180/Math.PI;
+		if (angle < 0.0) {
+			angle += 360.0;//convert to standard 0-360 degree system
+		}
 		System.out.println(angle);
 		if(side.equals("RIGHT")){//return a value for the right side.
-			if(angle>=0 && angle<=90){//Quadrant 1
-				angle=(angle/90);
-				return angle;
-			}else if(angle>=90 && angle<=180){//Quadrant 2
-				angle=angle-90;
-				angle=(angle/90);
-				return (1-angle);
-			}else if(angle >=-180 && angle <=-90){//Quadrant 3
-				
-			}else{//Quadrant 4
-				
+
+			if(angle==0){
+				return 1;
+			}else if(angle==90){
+				return -1;
+			}else if(angle==180){
+				return -1;
+			}else if(angle==270){
+				return 1;
 			}
-		}else if(side.equals("LEFT")){//return a value for the left side.
-			if(angle>=0 && angle<=90){//Quadrant 1
+			
+			if(angle>=0.0 && angle<=90){//Quadrent 1
 				angle=(angle/90);
-				return (1-angle);
-			}else if(angle>=90 && angle<=180){//Quadrant 2
-				angle=angle-90;
-				angle=(angle/90);
+				return -(angle);
+			}else if(angle>=90 && angle<=180){//Quadrent 2
+				angle=((angle-90)/90);
+				return -(angle);
+			}else if(angle>=180 && angle<=270){//Quadrent 3
+				angle=((angle-180)/90);
 				return (angle);
-			}else if(angle >=-180 && angle <=-90){//Quadrant 3
-				
-			}else{//Quadrant 4
-				
+			}else{//Quadrent 4
+				angle=((angle-270)/90);
+				return 1-angle;
 			}
+
+		}else if(side.equals("LEFT")){//return a value for the left side.
+			if(angle==0){
+				return -1;
+			}else if(angle==90){
+				return -1;
+			}else if(angle==180){
+				return 1;
+			}else if(angle==270){
+				return 1;
+			}
+			
+			if(angle>=0.0 && angle<=90){//Quadrent 1
+				angle=(angle/90);
+				return -(1-angle);
+			}else if(angle>=90 && angle<=180){//Quadrent 2
+				angle=((angle-90)/90);
+				return -(1-angle);
+			}else if(angle>=180 && angle<=270){//Quadrent 3
+				angle=((angle-180)/90);
+				return (1-angle);
+			}else{//Quadrent 4
+				angle=((angle-270)/90);
+				return (angle);
+			}
+
 		}
 		return 0;
 	}
