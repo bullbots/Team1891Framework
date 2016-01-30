@@ -3,9 +3,9 @@ package org.usfirst.frc.team1891.joysticks;
 import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.Joystick.RumbleType;
 import edu.wpi.first.wpilibj.Timer;
-
+import org.usfirst.frc.team1891.filewriter.LogWriter;
 /**
- * @author 408robot
+ * @author Josh
  *
  */
 public class JoystickControl {
@@ -16,10 +16,9 @@ public class JoystickControl {
 	double angle;
 	boolean press = false;
 	boolean release = true;
-	boolean a = true;
+	boolean on = false;
 	int aCount = 0;
 	Timer time = new Timer();
-	
 	
 	Joystick Stick;
 	/**
@@ -35,20 +34,23 @@ public class JoystickControl {
 		switch(getProfile()){
 		case 0:
 			System.out.println("Not a supported controller!");
+			
 		break;
 		//xbox 360
 		case 1:
-			x = axis(0)*0;
-			y = axis(1)*0;
+			x = axis(0);
+			y = axis(1);
 			z = 0;
-			angle = 0;
+			angle = getAngle(x, -y);
+			System.out.println(angle);
 		break;
 		//Logitech Attack
 		case 2:
 			x = axis(0);
 			y = axis(1);
 			z = 0;
-			angle = 0;
+			angle = getAngle(x,-y);
+			System.out.println(angle);
 		break;
 		
 		}
@@ -62,7 +64,6 @@ public class JoystickControl {
 	public void init(Joystick Joy)
 	{
 		Stick = Joy;
-		
 	}
 	
 	/**
@@ -74,6 +75,44 @@ public class JoystickControl {
 		if (Math.abs(Stick.getRawAxis(axis))>DEADZONE)return Stick.getRawAxis(axis);
 		return 0;
 	}
+	
+	/**
+	 * @param xcom
+	 * @param ycom
+	 * @return angle
+	 */
+	public double getAngle(double xcom, double ycom){
+		double angle = Math.PI/2;
+		if(Math.abs(xcom)<0.01&&ycom>.01){
+			return 90;
+		}
+		if(Math.abs(xcom)<0.01&&ycom<-.01){
+			return 270;
+		}
+		if(Math.abs(ycom)<0.01&&xcom<-.2){
+			return 180;
+		}
+		if(Math.abs(ycom)<0.01&&xcom>.2){
+			return 0;
+		}
+		if(xcom>=0.01){
+			if(Math.atan(ycom/xcom)>0){
+				angle = Math.atan(ycom/xcom);
+			}
+			if(Math.atan(ycom/xcom)<0){
+				angle = 2*Math.PI+Math.atan(ycom/xcom);
+			}
+		}
+		else if(xcom<-0.01&&Math.atan(ycom/xcom)!=0){
+			angle = Math.atan(ycom/xcom)+Math.PI;
+		}
+		return Math.toDegrees(angle);
+	}
+	
+	/**
+	 * @param button
+	 * @return if button is pressed
+	 */
 	public boolean button(int button)
 	{
 		return Stick.getRawButton(button);
@@ -101,47 +140,45 @@ public class JoystickControl {
 	
 	/**
 	 * IGNORE EVERYTHING BENEATH THIS, IT'S JUST FOR TESTING
+	 * @param index is the button index
+	 * @return whether or not the switch is on
 	 */
 	
-	public void rumble(){
-		if (!press && release && button(1) && a){
+	public boolean buttonToggle(int index){
+		
+		if (!press && button(index) && release){
 			press=true;
-			release = false;
-			setRumble();
-			System.out.println("Start");
+			on = true;
 		}
-		else if (press && !release && !button(1) && a){
+		else if (press && !button(index) && release){
 			press=false;
-			System.out.println("released");
-			a = false;
+			release = false;
+			on = true;
 		}
-		else if (!press && !release && button(1) && !a){
+		else if (!press && button(index) && !release){
 			press = true;
-			stopRumble();
-			System.out.println("Stop");
+			on = false;
 		}
-		else if (press && !release && !button(1) && !a){
+		else if (press && !button(index) && !release){
 			press = false;
 			release = true;
-			a = true;
-			System.out.println("released again");
+			on = false;
 		}
+		return on;
 	}
 	
 	/**
 	 * sets the joystick rumble pack
+	 * @param isOn true is if you want rumble, false is if you don't
 	 */
-	public void setRumble(){
-		Stick.setRumble(RumbleType.kLeftRumble, 1);
-		Stick.setRumble(RumbleType.kRightRumble, 1);
+	public void setRumble(boolean isOn){
+		if(isOn){
+			Stick.setRumble(RumbleType.kLeftRumble, 1);
+			Stick.setRumble(RumbleType.kRightRumble, 1);
+		}
+		if(!isOn){
+			Stick.setRumble(RumbleType.kLeftRumble, 0);
+			Stick.setRumble(RumbleType.kRightRumble, 0);
+		}
 	}
-	
-	/**
-	 * stops the joystick rumble pack
-	 */
-	public void stopRumble(){
-		Stick.setRumble(RumbleType.kLeftRumble, 0);
-		Stick.setRumble(RumbleType.kRightRumble, 0);
-	}
-	
 }
