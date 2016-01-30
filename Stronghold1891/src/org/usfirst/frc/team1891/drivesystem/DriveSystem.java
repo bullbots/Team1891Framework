@@ -14,7 +14,7 @@ import edu.wpi.first.wpilibj.Timer;
 public class DriveSystem {
 
 	private static LinkedList<MotorAndSide> motorList= null;
-	private static double rampRate=0.1;
+	private static double rampRate=0.2;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
 	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
@@ -119,22 +119,32 @@ public class DriveSystem {
 	}
 
 	private static void driveTankDrive(JoyVector vec){
-		double rightTheta=computeThetaScalar("RIGHT", vec);
-		double leftTheta = computeThetaScalar("LEFT", vec);
 
-		System.out.println("Right side scalar: "+rightTheta);
-		double vecComponantScalar =Math.sqrt(Math.pow(vec.getY_comp(), 2)+Math.pow(vec.getX_comp(), 2));
-		
-		double rightSideScalar=(rightSideReverse*rampRate*vecComponantScalar*rightTheta);
-		double leftSideScalar=(leftSideReverse*rampRate*vecComponantScalar*leftTheta);
-		double rightSideSet=rightSideScalar*12;
-		double leftSideSet=leftSideScalar*12;
+//	    Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
+//	    Invert X
+//	    Calculate R+L (Call it V): V =(100-ABS(X)) * (Y/100) + Y
+//	    Calculate R-L (Call it W): W= (100-ABS(Y)) * (X/100) + X
+//	    Calculate R: R = (V+W) /2
+//	    Calculate L: L= (V-W)/2
+//	    Do any scaling on R and L your hardware may require.
+//	    Send those values to your Robot.
+//	    Go back to 1.
+		double joyXInput=vec.getX_comp()*100;
+		double joyYInput=vec.getY_comp()*100;
+		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
+		double leftScal=((100-Math.abs(joyXInput))*(joyYInput/100)+joyYInput);
+		double rightSideVoltageUnscaled=((rightScal+leftScal)/2);
+		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
+		double rightSideVoltage=((rightSideVoltageUnscaled*3)/25)*rampRate;
+		double leftSideVoltage=((leftSideVoltageUnscaled*3)/25)*rampRate;
+		System.out.println("Ride side: " +rightSideVoltage);
+		System.out.println("Left side: "+leftSideVoltage);
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
-					m.getJag().setVoltage(rightSideSet);
+					m.getJag().setVoltage(rightSideVoltage);
 				}else{
-					m.getJag().setVoltage(leftSideSet);
+					m.getJag().setVoltage(leftSideVoltage);
 				}
 			}else if(m.talonSRX!=null){
 				//TODO: talon code.
@@ -146,69 +156,6 @@ public class DriveSystem {
 			}
 		}
 		//TODO deal with rampRate
-	}
-
-	private static double computeThetaScalar(String side, JoyVector vec) {
-		//		double angle = vec.getAngle(); TODO tell josh to calculate the error.
-		
-		double angle = -Math.atan2(vec.getY_comp(), vec.getX_comp())*180/Math.PI;
-		if (angle < 0.0) {
-			angle += 360.0;//convert to standard 0-360 degree system
-		}
-		System.out.println(angle);
-		if(side.equals("RIGHT")){//return a value for the right side.
-
-			if(angle==0){
-				return 1;
-			}else if(angle==90){
-				return -1;
-			}else if(angle==180){
-				return -1;
-			}else if(angle==270){
-				return 1;
-			}
-			
-			if(angle>=0.0 && angle<=90){//Quadrent 1
-				angle=(angle/90);
-				return -(angle);
-			}else if(angle>=90 && angle<=180){//Quadrent 2
-				angle=((angle-90)/90);
-				return -(angle);
-			}else if(angle>=180 && angle<=270){//Quadrent 3
-				angle=((angle-180)/90);
-				return (angle);
-			}else{//Quadrent 4
-				angle=((angle-270)/90);
-				return 1-angle;
-			}
-
-		}else if(side.equals("LEFT")){//return a value for the left side.
-			if(angle==0){
-				return -1;
-			}else if(angle==90){
-				return -1;
-			}else if(angle==180){
-				return 1;
-			}else if(angle==270){
-				return 1;
-			}
-			
-			if(angle>=0.0 && angle<=90){//Quadrent 1
-				angle=(angle/90);
-				return -(1-angle);
-			}else if(angle>=90 && angle<=180){//Quadrent 2
-				angle=((angle-90)/90);
-				return -(1-angle);
-			}else if(angle>=180 && angle<=270){//Quadrent 3
-				angle=((angle-180)/90);
-				return (1-angle);
-			}else{//Quadrent 4
-				angle=((angle-270)/90);
-				return (angle);
-			}
-
-		}
-		return 0;
 	}
 
 	private static void driveTankDrivePID(JoyVector vec) {
