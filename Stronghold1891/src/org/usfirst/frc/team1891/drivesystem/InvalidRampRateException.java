@@ -3,8 +3,9 @@ package org.usfirst.frc.team1891.drivesystem;
 import org.usfirst.frc.team1891.filewriter.LogWriter;
 
 /**
- * @author Tyler Manning
+ * 
  *Thrown when the input ramp rate is invalid.
+ * @author Tyler Manning
  */
 @SuppressWarnings("serial")
 public class InvalidRampRateException extends Exception {

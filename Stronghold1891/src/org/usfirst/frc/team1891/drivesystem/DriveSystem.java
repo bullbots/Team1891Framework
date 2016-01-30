@@ -6,7 +6,9 @@ import org.usfirst.frc.team1891.joysticks.JoyVector;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
- * @author Egan Schafer, Tyler Manning
+ * This class controls the drive system as a whole for the robot. There are a few configuration methods that should
+ * be called but after configuration it is just a matter of calling drive() every iteration.
+ * @author Tyler Manning
  *
  */
 public class DriveSystem {
@@ -18,10 +20,11 @@ public class DriveSystem {
 	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
 	private static int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
 	/**
-	 * @author Tyler
-	 *Enumeration with all the different drive system.
+	 * Enumeration with all the different drive system.
 	 *Can be easily expanded for more use. Commented drive systems are not in use.
 	 *You will also need to expand the set drive system method if more drive systems are added.
+	 * @author Tyler
+	 *
 	 */
 	public enum driveModes {
 		/**
@@ -116,12 +119,12 @@ public class DriveSystem {
 	}
 
 	private static void driveTankDrive(JoyVector vec){
-//		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("RIGHT", vec)*12;
-//		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("LEFT", vec)*12;
-//		System.out.println("Right Side Power "+ rightSideSet);
-//		System.out.println("Left Side Power "+ leftSideSet);
-		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*12;
-		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*12;
+		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("RIGHT", vec)*12;
+		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("LEFT", vec)*12;
+		//		System.out.println("Right Side Power "+ rightSideSet);
+		//		System.out.println("Left Side Power "+ leftSideSet);
+		//		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*12;
+		//		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*12;
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
@@ -142,22 +145,35 @@ public class DriveSystem {
 	}
 
 	private static double computeThetaScalar(String side, JoyVector vec) {
-		double angle = vec.getAngle();
+		//		double angle = vec.getAngle(); TODO tell josh to calculate the error.
+		double angle = Math.atan2(vec.getY_comp(), vec.getX_comp());
+		angle=-1*Math.toDegrees(angle);
+		System.out.println(angle);
 		if(side.equals("RIGHT")){//return a value for the right side.
-			if(angle >= -90 && angle<=90){//if the robot needs to turn right
+			if(angle>=0 && angle<=90){//Quadrant 1
+				angle=(angle/90);
+				return angle;
+			}else if(angle>=90 && angle<=180){//Quadrant 2
+				angle=angle-90;
 				angle=(angle/90);
 				return (1-angle);
-			}else{//if the robot needs to turn left
-				angle=(angle/90);
-				return (angle);
+			}else if(angle >=-180 && angle <=-90){//Quadrant 3
+				
+			}else{//Quadrant 4
+				
 			}
 		}else if(side.equals("LEFT")){//return a value for the left side.
-			if(angle <= -90 && angle>=90){//if the robot needs to turn right
-				angle=(angle/90);
-				return (angle);
-			}else{//if the robot needs to turn left
+			if(angle>=0 && angle<=90){//Quadrant 1
 				angle=(angle/90);
 				return (1-angle);
+			}else if(angle>=90 && angle<=180){//Quadrant 2
+				angle=angle-90;
+				angle=(angle/90);
+				return (angle);
+			}else if(angle >=-180 && angle <=-90){//Quadrant 3
+				
+			}else{//Quadrant 4
+				
 			}
 		}
 		return 0;
@@ -166,7 +182,7 @@ public class DriveSystem {
 	private static void driveTankDrivePID(JoyVector vec) {
 
 	}
-	
+
 	/**
 	 * Enables all the motors in their correct mode.
 	 */
