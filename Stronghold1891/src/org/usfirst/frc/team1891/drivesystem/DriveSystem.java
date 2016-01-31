@@ -33,6 +33,9 @@ public class DriveSystem {
 		 *The tank drive system.
 		 */
 		TANK_DRIVE,
+		/**
+		 * The tank drive system using PID control
+		 */
 		TANK_DRIVE_PID
 		//			MECHNINUM_DRIVE,
 		//			OMNI_DRIVE,
@@ -46,7 +49,7 @@ public class DriveSystem {
 	 * @param motorList a list of ALL motors on the current system.
 	 */
 	public DriveSystem(LinkedList<MotorAndSide> motorList){
-		this.motorList=motorList;
+		DriveSystem.motorList=motorList;
 	}
 
 	/**
@@ -58,8 +61,12 @@ public class DriveSystem {
 	 */
 	public void setRampRate(double rampRate) throws InvalidRampRateException {
 		if(rampRate>1.0){throw new InvalidRampRateException();}
+<<<<<<< HEAD
 		this.rampRate = rampRate;
 		
+=======
+		DriveSystem.rampRate = rampRate;
+>>>>>>> 61f27c647ccfde19cf2dd433c10454cff9d64d68
 	}
 
 	/**
