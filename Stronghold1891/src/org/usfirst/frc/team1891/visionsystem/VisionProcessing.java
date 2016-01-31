@@ -5,14 +5,25 @@ import org.usfirst.frc.team1891.filewriter.LogWriter;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 
+/**
+ * @author Zach
+ *
+ */
 public class VisionProcessing 
 {
 	NetworkTable table;
 	LogWriter log;
+	/**
+	 * 
+	 */
 	public VisionProcessing()
 	{
-		log = new LogWriter();	
+		log = new LogWriter();
+		table = NetworkTable.getTable("GRIP/targets");
 	}
+	/**
+	 * @return
+	 */
 	public double getArea()
 	{
 		double[] Area = new double[0];
@@ -25,6 +36,9 @@ public class VisionProcessing
     		}
 			return 0;
 	}
+	/**
+	 * @return
+	 */
 	public double getHeight()
 	{
 		double[] Height = new double[0];
@@ -38,6 +52,9 @@ public class VisionProcessing
     		}
 			return 0;
 	}
+	/**
+	 * @return
+	 */
 	public double getSolidity()
 	{
 		double[] Solid = new double[0];
@@ -52,6 +69,9 @@ public class VisionProcessing
 			return 0;
     	
 	}
+	/**
+	 * @return
+	 */
 	public double getCenterY()
 	{
 		double[] CenterY = new double[0];
@@ -92,7 +112,7 @@ public class VisionProcessing
 	
 	public void outputData()
 	{
-		table = NetworkTable.getTable("GRIP/targets");
+		
 		double[] Area = new double[0];
     	double[] yCenter = new double[0];
     	while (true)
