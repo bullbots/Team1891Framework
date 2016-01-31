@@ -140,8 +140,6 @@ public class DriveSystem {
 		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
 		double rightSideVoltage=((rightSideVoltageUnscaled*3)/25)*rampRate;
 		double leftSideVoltage=((leftSideVoltageUnscaled*3)/25)*rampRate;
-		System.out.println("Ride side: " +rightSideVoltage);
-		System.out.println("Left side: "+leftSideVoltage);
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
