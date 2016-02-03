@@ -42,7 +42,6 @@ public class JoystickControl {
 			y = axis(1);
 			z = 0;
 			angle = getAngle(x, -y);
-			System.out.println(angle);
 		break;
 		//Logitech Attack
 		case 2:
@@ -50,7 +49,6 @@ public class JoystickControl {
 			y = axis(1);
 			z = 0;
 			angle = getAngle(x,-y);
-			System.out.println(angle);
 		break;
 		
 		}
