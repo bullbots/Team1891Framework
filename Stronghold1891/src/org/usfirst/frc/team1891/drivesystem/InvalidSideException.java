@@ -2,7 +2,8 @@ package org.usfirst.frc.team1891.drivesystem;
 
 import org.usfirst.frc.team1891.filewriter.*;
 /**
- * This error should be thrown when there is an invalid state of the machine.
+ * This error should be thrown when there is an invalid side of the motor specified. 
+ * The motors should only be on the "RIGHT" or "LEFT" of the machine.
  * @author Tyler
  *
  */

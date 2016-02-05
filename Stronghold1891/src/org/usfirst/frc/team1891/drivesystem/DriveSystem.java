@@ -6,28 +6,34 @@ import org.usfirst.frc.team1891.joysticks.JoyVector;
 import edu.wpi.first.wpilibj.Timer;
 
 /**
- * @author Egan Schafer, Tyler Manning
+ * This class controls the drive system as a whole for the robot. There are a few configuration methods that should
+ * be called but after configuration it is just a matter of calling drive() every iteration.
+ * @author Tyler Manning
  *
  */
 public class DriveSystem {
 
 	private static LinkedList<MotorAndSide> motorList= null;
-	private static double rampRate=0.1;
+	private static double rampRate=0.2;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
 	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
 	private static int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
 	/**
-	 * @author Tyler
-	 *Enumeration with all the different drive system.
+	 * Enumeration with all the different drive system.
 	 *Can be easily expanded for more use. Commented drive systems are not in use.
 	 *You will also need to expand the set drive system method if more drive systems are added.
+	 * @author Tyler
+	 *
 	 */
 	public enum driveModes {
 		/**
 		 *The tank drive system.
 		 */
 		TANK_DRIVE,
+		/**
+		 * The tank drive system using PID control
+		 */
 		TANK_DRIVE_PID
 		//			MECHNINUM_DRIVE,
 		//			OMNI_DRIVE,
@@ -41,7 +47,7 @@ public class DriveSystem {
 	 * @param motorList a list of ALL motors on the current system.
 	 */
 	public DriveSystem(LinkedList<MotorAndSide> motorList){
-		this.motorList=motorList;
+		DriveSystem.motorList=motorList;
 	}
 
 	/**
@@ -53,7 +59,7 @@ public class DriveSystem {
 	 */
 	public void setRampRate(double rampRate) throws InvalidRampRateException {
 		if(rampRate>1.0){throw new InvalidRampRateException();}
-		this.rampRate = rampRate;
+		DriveSystem.rampRate = rampRate;
 	}
 
 	/**
@@ -116,18 +122,30 @@ public class DriveSystem {
 	}
 
 	private static void driveTankDrive(JoyVector vec){
-//		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("RIGHT", vec)*12;
-//		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*computeThetaScalar("LEFT", vec)*12;
-//		System.out.println("Right Side Power "+ rightSideSet);
-//		System.out.println("Left Side Power "+ leftSideSet);
-		double rightSideSet=rightSideReverse*rampRate*vec.getY_comp()*12;
-		double leftSideSet=leftSideReverse*rampRate*vec.getY_comp()*12;
+
+//	    Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
+//	    Invert X
+//	    Calculate R+L (Call it V): V =(100-ABS(X)) * (Y/100) + Y
+//	    Calculate R-L (Call it W): W= (100-ABS(Y)) * (X/100) + X
+//	    Calculate R: R = (V+W) /2
+//	    Calculate L: L= (V-W)/2
+//	    Do any scaling on R and L your hardware may require.
+//	    Send those values to your Robot.
+//	    Go back to 1.
+		double joyXInput=vec.getX_comp()*100;
+		double joyYInput=vec.getY_comp()*100;
+		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
+		double leftScal=((100-Math.abs(joyXInput))*(joyYInput/100)+joyYInput);
+		double rightSideVoltageUnscaled=((rightScal+leftScal)/2);
+		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
+		double rightSideVoltage=((rightSideVoltageUnscaled*3)/25)*rampRate;
+		double leftSideVoltage=((leftSideVoltageUnscaled*3)/25)*rampRate;
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
-					m.getJag().setVoltage(rightSideSet);
+					m.getJag().setVoltage(rightSideVoltage);
 				}else{
-					m.getJag().setVoltage(leftSideSet);
+					m.getJag().setVoltage(leftSideVoltage);
 				}
 			}else if(m.talonSRX!=null){
 				//TODO: talon code.
@@ -141,32 +159,10 @@ public class DriveSystem {
 		//TODO deal with rampRate
 	}
 
-	private static double computeThetaScalar(String side, JoyVector vec) {
-		double angle = vec.getAngle();
-		if(side.equals("RIGHT")){//return a value for the right side.
-			if(angle >= -90 && angle<=90){//if the robot needs to turn right
-				angle=(angle/90);
-				return (1-angle);
-			}else{//if the robot needs to turn left
-				angle=(angle/90);
-				return (angle);
-			}
-		}else if(side.equals("LEFT")){//return a value for the left side.
-			if(angle <= -90 && angle>=90){//if the robot needs to turn right
-				angle=(angle/90);
-				return (angle);
-			}else{//if the robot needs to turn left
-				angle=(angle/90);
-				return (1-angle);
-			}
-		}
-		return 0;
-	}
-
 	private static void driveTankDrivePID(JoyVector vec) {
 
 	}
-	
+
 	/**
 	 * Enables all the motors in their correct mode.
 	 */

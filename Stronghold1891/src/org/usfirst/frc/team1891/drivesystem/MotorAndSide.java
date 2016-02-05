@@ -4,10 +4,11 @@ import org.usfirst.frc.team1891.motorcontroller.*;
 import edu.wpi.first.wpilibj.CANTalon;
 
 /**
- * @author Tyler
- *This is used as a support class for the drive system constructor. To properly use the
+ * This is used as a support class for the drive system constructor. To properly use the
  *Drive system controller create a list of all motors used in the drive system, using this class.
  *Then use that list for the constructor.
+ * @author Tyler
+ *
  */
 public class MotorAndSide {
 	
