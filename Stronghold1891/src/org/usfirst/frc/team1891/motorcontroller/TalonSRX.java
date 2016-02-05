@@ -1,6 +1,4 @@
-/**
- * 
- */
+
 package org.usfirst.frc.team1891.motorcontroller;
 
 import edu.wpi.first.wpilibj.CANTalon;
