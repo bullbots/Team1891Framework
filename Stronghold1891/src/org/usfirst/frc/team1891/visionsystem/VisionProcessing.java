@@ -49,79 +49,81 @@ public class VisionProcessing
 	}
 	/**
 	 * Outputs the height to the Riolog
+	 * @return The height
 	 */
-	public void getHeight()
+	public double getHeight()
 	{
 		double[] height = new double[0];
 		double [] heights = table.getNumberArray("height", height);
 		System.out.print("height: ");
 		for(double up : heights)
 		{
-			System.out.print(up + " ");
+			return up;
 		}
-		System.out.println();
-		Timer.delay(1);
+		return 0;
+		
 	}
 	/**
 	 * Outputs the solidity to the Riolog
+	 * @return The solidity
 	 */
-	public void getSolidity()
+	public double getSolidity()
 	{
 		double[] solid = new double[0];
 		double[] solidity = table.getNumberArray("solidity", solid);
 		System.out.print("Solidity: ");
 		for(double solids : solidity)
 		{
-			System.out.print(solids + " ");
+			return solids;
 		}
-		System.out.println();
-		Timer.delay(1);
+		return 0;
     	
 	}
 	/**
 	 * Outputs the YCenter to the Riolog
+	 * @return The yCenter
 	 */
-	public void getCenterY()
+	public double getCenterY()
 	{
 		double[] yCenter = new double[0];
 		double[] yCenters = table.getNumberArray("centerY", yCenter);
 		System.out.print("centerY: ");
 		for(double centersY : yCenters)
 		{
-			System.out.print(centersY + " ");
+			return centersY;
 		}
-		System.out.println();
-		Timer.delay(1);
+		return 0;
+		
 	}
 	/**
 	 *Outputs width to the Riolog 
+	 * @return The width
 	 */
-	public void getWidth()
+	public double getWidth()
 	{
 		double[] width = new double[0];
 		double[] widths = table.getNumberArray("width", width);
 		System.out.print("Width: ");
 		for(double wid : widths)
 		{
-			System.out.print(wid + " ");
+			return wid;
 		}
-		System.out.println();
-		Timer.delay(1);
+		return 0;
 	}
 	/**
 	 * Outputs the centerX to the Riolog
+	 * @return The centerX
 	 */
-	public void getCenterX()
+	public double getCenterX()
 	{
 		double[] xCenter = new double[0];
 		double[] xCenters = table.getNumberArray("xCenter", xCenter);
 		System.out.print("xCenter: ");
 		for(double x : xCenters)
 		{
-			System.out.print(x + " ");
+			return x;
 		}
-		System.out.println();
-		Timer.delay(1);
+		return 0;
 	}
 	
 	
