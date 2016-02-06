@@ -1,7 +1,6 @@
 package org.usfirst.frc.team1891.drivesystem;
 
 import org.usfirst.frc.team1891.motorcontroller.*;
-import edu.wpi.first.wpilibj.CANTalon;
 
 /**
  * This is used as a support class for the drive system constructor. To properly use the
@@ -13,7 +12,7 @@ import edu.wpi.first.wpilibj.CANTalon;
 public class MotorAndSide {
 	
 	Jaguar jag= null;
-	CANTalon talonSRX = null;
+	TalonSRX talonSRX = null;
 	String side;
 	/**
 	 * Constructor for MotorAndSide, instatiates the motor with the information about what side of the robot
@@ -35,7 +34,7 @@ public class MotorAndSide {
 	 * @param side side of the robot the TalonSRX is on. value of side should either be "RIGHT" or "LEFT" else an error will be thrown.
 	 * @throws InvalidSideException thrown when the side of the motor is invalid.
 	 */
-	public MotorAndSide(CANTalon talon, String side) throws InvalidSideException{
+	public MotorAndSide(TalonSRX talon, String side) throws InvalidSideException{
 		if(!side.equals("RIGHT") && !side.equals("LEFT")) {throw new InvalidSideException();}
 		this.talonSRX=talon;
 		this.side=side;
@@ -51,7 +50,7 @@ public class MotorAndSide {
 	/**
 	 * @return returns the current talonSRX object, will return null if srx motors are not being used.
 	 */	
-	public CANTalon getTalonSRX() {
+	public TalonSRX getTalonSRX() {
 		return talonSRX;
 	}
 

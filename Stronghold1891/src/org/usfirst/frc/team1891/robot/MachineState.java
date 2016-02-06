@@ -16,7 +16,7 @@ public class MachineState{
 	//5. Move to shooting position
 	//6. Fire at target.
 	//7. Look for rebound and begin moving back.
-	int stateNum=0;
+	private int stateNum=0;
 
 	/**
 	 *0. Find crossable defense, robot should be looking for closest possible defense.

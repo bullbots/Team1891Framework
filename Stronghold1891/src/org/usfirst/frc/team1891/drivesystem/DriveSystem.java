@@ -17,6 +17,8 @@ public class DriveSystem {
 	private static double rampRate=0.2;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
+	
+	//TODO: Involve these variables in the voltage equation.
 	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
 	private static int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
 	/**
@@ -148,11 +150,10 @@ public class DriveSystem {
 					m.getJag().setVoltage(leftSideVoltage);
 				}
 			}else if(m.talonSRX!=null){
-				//TODO: talon code.
 				if(m.side.equals("RIGHT")){
-
+					m.getTalonSRX().setVoltage(rightSideVoltage);
 				}else{
-
+					m.getTalonSRX().setVoltage(leftSideVoltage);
 				}
 			}
 		}
