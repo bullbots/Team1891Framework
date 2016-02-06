@@ -104,11 +104,11 @@ public class Robot extends IterativeRobot {
 		}
 		
 		// and deploys the frisbee when button 1 is clicked.
-		if(loaded.get()==true){
+//		if(loaded.get()==true){
 			if(joy1.getRawButton(1)){
 				loaderServ1.set(1);
 				loaderServ2.set(0);
-			}
+//			}
 			
 		}else{
 			loaderServ1.set(0.55);
