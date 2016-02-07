@@ -33,19 +33,19 @@ public class VisionProcessing
 		table = NetworkTable.getTable("GRIP/targets");
 	}
 	/**
-	 * Outputs the area of the object to the Riolog
+	 * @return the area of the object
 	 */
-	public void getArea()
+	public double getArea()
 	{
 		double[] Area = new double[0];
 		double[] areas = table.getNumberArray("area", Area);
 		System.out.print("Areas: ");
 		for(double area : areas)
 		{
-			System.out.print(area + " ");
+			return area;
+			
 		}
-		System.out.println();
-		Timer.delay(1);
+		return 0;
 	}
 	/**
 	 * Outputs the height to the Riolog
@@ -116,17 +116,15 @@ public class VisionProcessing
 	 */
 	public double getCenterX()
 	{
-		double[] xCenter = new double[0];
-		double[] xCenters = table.getNumberArray("xCenter", xCenter);
-		System.out.print("xCenter: ");
-		for(double x : xCenters)
+		double[] height = new double[0];
+		double [] heights = table.getNumberArray("height", height);
+		System.out.print("CenterX: ");
+		for(double up : heights)
 		{
-			return x;
+			return up;
 		}
 		return 0;
 	}
-	
-	
 	/**
 	 * Outputs all data to the Riolog
 	 */
@@ -193,9 +191,6 @@ public class VisionProcessing
     		}
     		System.out.println();
     		Timer.delay(1);
-    		
-    		
-    		
 	}
 
 }
