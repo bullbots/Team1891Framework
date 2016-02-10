@@ -63,12 +63,9 @@ public class DriveSystem {
 	 */
 	public void setRampRate(double rampRate) throws InvalidRampRateException {
 		if(rampRate>1.0){throw new InvalidRampRateException();}
-<<<<<<< HEAD
 		this.rampRate = rampRate;
 		
-=======
-		DriveSystem.rampRate = rampRate;
->>>>>>> 61f27c647ccfde19cf2dd433c10454cff9d64d68
+
 	}
 
 	/**
