@@ -4,7 +4,6 @@ import org.usfirst.frc.team1891.filewriter.*;
 import org.usfirst.frc.team1891.joysticks.JoyVector;
 
 import edu.wpi.first.wpilibj.Timer;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class controls the drive system as a whole for the robot. There are a few configuration methods that should
@@ -15,14 +14,13 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class DriveSystem {
 
 	private static LinkedList<MotorAndSide> motorList= null;
-	private static double rampRate=0.06;
+	private static double rampRate=0.2;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
 	
 	//TODO: Involve these variables in the voltage equation.
 	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
 	private static int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
-	static SmartDashboard dash = new SmartDashboard();
 	/**
 	 * Enumeration with all the different drive system.
 	 *Can be easily expanded for more use. Commented drive systems are not in use.
@@ -63,9 +61,7 @@ public class DriveSystem {
 	 */
 	public void setRampRate(double rampRate) throws InvalidRampRateException {
 		if(rampRate>1.0){throw new InvalidRampRateException();}
-		this.rampRate = rampRate;
-		
-
+		DriveSystem.rampRate = rampRate;
 	}
 
 	/**
@@ -94,7 +90,6 @@ public class DriveSystem {
 		switch(currentDrive){
 		case TANK_DRIVE://Copy case statements for different drive systems.
 			driveTankDrive(vec);
-			driveTankAngleDrive(vec);
 			break;
 		case TANK_DRIVE_PID:
 			driveTankDrivePID(vec);
@@ -127,50 +122,8 @@ public class DriveSystem {
 			leftSideReverse=1;
 		}
 	}
-	
-	public void driveTankDrive(JoyVector vec){
-		double x=vec.getX_comp();
-		double y=vec.getY_comp();
-		double left = (x - y)*damp(x,y);
-		double right = (x + y)*damp(x,y);
-		
-		dash.putNumber("right old", -right);
-		dash.putNumber("left old", left);
-		
-		for(MotorAndSide m: motorList){
-			if(m.jag!=null){
-				if(m.side.equals("RIGHT")){
-					m.getJag().setVoltage(right);
-				}else{
-					m.getJag().setVoltage(left);
-				}
-			}else if(m.talonSRX!=null){
-				//TODO: talon code.
-				if(m.side.equals("RIGHT")){
 
-				}else{
-
-				}
-			}
-			
-		}
-		//TODO deal with rampRate
-	}
-	
-	public double damp(double x, double y){
-		double max = 1;
-		double left = Math.abs(x-y);
-		double right = Math.abs(x+y);
-		if(left>1&& left>right){
-			max = 1/left;
-		}
-		else if(right>1&& right>=left){
-			max = 1/right;
-		}
-		return max * .72;
-	}
-	
-	public static void driveTankAngleDrive(JoyVector vec){
+	private static void driveTankDrive(JoyVector vec){
 
 //	    Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
 //	    Invert X
@@ -181,7 +134,7 @@ public class DriveSystem {
 //	    Do any scaling on R and L your hardware may require.
 //	    Send those values to your Robot.
 //	    Go back to 1.
-		double joyXInput=vec.getX_comp()*50;
+		double joyXInput=vec.getX_comp()*100;
 		double joyYInput=vec.getY_comp()*100;
 		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
 		double leftScal=((100-Math.abs(joyXInput))*(joyYInput/100)+joyYInput);
@@ -217,11 +170,7 @@ public class DriveSystem {
 	public void enableAll(){
 		//TODO: enable all types of motors and in the correct mode.
 		for(MotorAndSide m : motorList){
-			if(m.jag!=null){
-				m.getJag().initVoltage();
-			}else if(m.talonSRX!=null){
-				m.getTalonSRX().initVoltage();
-			}
+			m.getJag().initVoltage();
 		}
 	}
 
