@@ -15,9 +15,9 @@ public class Arduino {
 	/**
 	 * @param address
 	 */
-	public Arduino(int address)
+	public Arduino(int address, I2C arduino)
 	{
-		arduino = new I2C(I2C.Port.kMXP, address);
+		this.arduino = arduino;
 		this.address = address;
 		data = new byte[3];
 	}
