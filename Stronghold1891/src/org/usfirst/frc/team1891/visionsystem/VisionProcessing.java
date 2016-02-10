@@ -1,5 +1,7 @@
 package org.usfirst.frc.team1891.visionsystem;
 
+import java.io.IOException;
+
 import org.usfirst.frc.team1891.filewriter.LogWriter;
 
 import edu.wpi.first.wpilibj.Timer;
@@ -11,112 +13,131 @@ import edu.wpi.first.wpilibj.networktables.NetworkTable;
  */
 public class VisionProcessing 
 {
+	private final static String[] GRIP_ARGS = new String[] {
+	        "/usr/local/frc/JRE/bin/java", "-jar",
+	        "/home/lvuser/grip.jar", "/home/lvuser/project.grip" };
+	private final NetworkTable grip = NetworkTable.getTable("grip");
 	NetworkTable table;
 	LogWriter log;
 	/**
-	 * 
+	 * Instantiates the LogWriter and the NeworkTable into the environmet
 	 */
 	public VisionProcessing()
 	{
+		try {
+            Runtime.getRuntime().exec(GRIP_ARGS);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
 		log = new LogWriter();
 		table = NetworkTable.getTable("GRIP/targets");
 	}
 	/**
-	 * @return
+	 * @return the area of the object
 	 */
 	public double getArea()
 	{
 		double[] Area = new double[0];
-    		double[] areas = table.getNumberArray("area", Area);
-    		System.out.print("Areas: ");
-    		for(double area : areas)
-    		{
-    			log.appendMessageToLog(area + " ");
-    			return area;
-    		}
-			return 0;
-	}
-	/**
-	 * @return
-	 */
-	public double getHeight()
-	{
-		double[] Height = new double[0];
-		
-    		double[] heights = table.getNumberArray("height", Height);
-    		System.out.print("Height: ");
-    		for(double height : heights)
-    		{
-    			log.appendMessageToLog(height + " ");
-    			return height;
-    		}
-			return 0;
-	}
-	/**
-	 * @return
-	 */
-	public double getSolidity()
-	{
-		double[] Solid = new double[0];
-		
-    		double[] solids = table.getNumberArray("Solidity", Solid);
-    		System.out.print("Solidity: ");
-    		for(double solid : solids)
-    		{
-    			log.appendMessageToLog(solid + " ");
-    			return solid;
-    		}
-			return 0;
-    	
-	}
-	/**
-	 * @return
-	 */
-	public double getCenterY()
-	{
-		double[] CenterY = new double[0];
-    		double[] centersY = table.getNumberArray("CenterY", CenterY);
-    		System.out.print("CenterY: ");
-    		for(double center : centersY)
-    		{
-    			log.appendMessageToLog(center + " ");
-    			return center;
-    		}
-			return 0;	
-	}
-	public double getWidth()
-	{
-		double[] Width = new double[0];
-    		double[] widths = table.getNumberArray("width", Width);
-    		System.out.print("Width: ");
-    		for(double width : widths)
-    		{
-    			log.appendMessageToLog(width + " ");
-    			return width;
-    		}
-			return 0;
-	}
-	public double getCenterX()
-	{
-		double[] CenterX = new double[0];
-		double[] centersX = table.getNumberArray("centerX", CenterX);
-		System.out.print("CenterX: ");
-		for(double centerX : centersX)
+		double[] areas = table.getNumberArray("area", Area);
+		System.out.print("Areas: ");
+		for(double area : areas)
 		{
-			log.appendMessageToLog(centerX + " ");
-			return centerX;
+			return area;
+			
 		}
 		return 0;
 	}
-	
-	
+	/**
+	 * Outputs the height to the Riolog
+	 * @return The height
+	 */
+	public double getHeight()
+	{
+		double[] height = new double[0];
+		double [] heights = table.getNumberArray("height", height);
+		System.out.print("height: ");
+		for(double up : heights)
+		{
+			return up;
+		}
+		return 0;
+		
+	}
+	/**
+	 * Outputs the solidity to the Riolog
+	 * @return The solidity
+	 */
+	public double getSolidity()
+	{
+		double[] solid = new double[0];
+		double[] solidity = table.getNumberArray("solidity", solid);
+		System.out.print("Solidity: ");
+		for(double solids : solidity)
+		{
+			return solids;
+		}
+		return 0;
+    	
+	}
+	/**
+	 * Outputs the YCenter to the Riolog
+	 * @return The yCenter
+	 */
+	public double getCenterY()
+	{
+		double[] yCenter = new double[0];
+		double[] yCenters = table.getNumberArray("centerY", yCenter);
+		System.out.print("centerY: ");
+		for(double centersY : yCenters)
+		{
+			return centersY;
+		}
+		return 0;
+		
+	}
+	/**
+	 *Outputs width to the Riolog 
+	 * @return The width
+	 */
+	public double getWidth()
+	{
+		double[] width = new double[0];
+		double[] widths = table.getNumberArray("width", width);
+		System.out.print("Width: ");
+		for(double wid : widths)
+		{
+			return wid;
+		}
+		return 0;
+	}
+	/**
+	 * Outputs the centerX to the Riolog
+	 * @return The centerX
+	 */
+	public double getCenterX()
+	{
+		double[] height = new double[0];
+		double [] heights = table.getNumberArray("height", height);
+		System.out.print("CenterX: ");
+		for(double up : heights)
+		{
+			return up;
+		}
+		return 0;
+	}
+	/**
+	 * Outputs all data to the Riolog
+	 */
 	public void outputData()
 	{
 		
 		double[] Area = new double[0];
     	double[] yCenter = new double[0];
-    	while (true)
-    	{
+    	double[] height = new double[0];
+    	double[] solid = new double[0];
+    	double[] width = new double[0];
+    	double[] xCenter = new double[0];
+    	
     		double[] areas = table.getNumberArray("area", Area);
     		System.out.print("Areas: ");
     		for(double area : areas)
@@ -125,6 +146,7 @@ public class VisionProcessing
     		}
     		System.out.println();
     		Timer.delay(1);
+    		
     		double[] yCenters = table.getNumberArray("centerY", yCenter);
     		System.out.print("centerY: ");
     		for(double centersY : yCenters)
@@ -133,7 +155,42 @@ public class VisionProcessing
     		}
     		System.out.println();
     		Timer.delay(1);
-    	}
+    		
+    		double [] heights = table.getNumberArray("height", height);
+    		System.out.print("height: ");
+    		for(double up : heights)
+    		{
+    			System.out.print(up + " ");
+    		}
+    		System.out.println();
+    		Timer.delay(1);
+    		
+    		double[] solidity = table.getNumberArray("solidity", solid);
+    		System.out.print("Solidity: ");
+    		for(double solids : solidity)
+    		{
+    			System.out.print(solids + " ");
+    		}
+    		System.out.println();
+    		Timer.delay(1);
+    		
+    		double[] widths = table.getNumberArray("width", width);
+    		System.out.print("Width: ");
+    		for(double wid : widths)
+    		{
+    			System.out.print(wid + " ");
+    		}
+    		System.out.println();
+    		Timer.delay(1);
+    		
+    		double[] xCenters = table.getNumberArray("xCenter", xCenter);
+    		System.out.print("xCenter: ");
+    		for(double x : xCenters)
+    		{
+    			System.out.print(x + " ");
+    		}
+    		System.out.println();
+    		Timer.delay(1);
 	}
 
 }
