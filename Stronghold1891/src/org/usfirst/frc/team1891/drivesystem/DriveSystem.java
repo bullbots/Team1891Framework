@@ -170,7 +170,11 @@ public class DriveSystem {
 	public void enableAll(){
 		//TODO: enable all types of motors and in the correct mode.
 		for(MotorAndSide m : motorList){
-			m.getJag().initVoltage();
+			if(m.jag!=null){
+				m.getJag().initVoltage();
+			}else if(m.talonSRX!=null){
+				m.getTalonSRX().initVoltage();
+			}
 		}
 	}
 
