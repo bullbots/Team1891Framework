@@ -74,7 +74,8 @@ public class Analog {
 		}
 		else if (name.equals("ultra"))
 		{
-			
+			ai.setOversampleBits(4);
+			ai.setAverageBits(2);
 		}
 		else if (name.equals("ir"))
 		{
@@ -88,8 +89,8 @@ public class Analog {
 			}
 			Oversamplebits = Integer.parseInt(config[0]);
 			AverageBits = Integer.parseInt(config[1]);
-			index1 = Integer.parseInt(config[2]);
-			index2 = Integer.parseInt(config[3]);
+			index1 = Double.parseDouble(config[2]);
+			index2 = Double.parseDouble(config[3]);
 			ai.setAverageBits(AverageBits);
 			ai.setOversampleBits(Oversamplebits);
 		}
@@ -126,5 +127,14 @@ public class Analog {
 //		double distance = (Math.log(value / 1421.9) / -0.24);
 		double distance = (Math.log(value / index1) / index2);
 		return distance;
+	}
+	
+	/**
+	 * @return
+	 */
+	public double readDistanceTest()
+	{
+		double value = ai.getAverageValue()/ Math.pow(2, ai.getOversampleBits());
+		return value;
 	}
 }

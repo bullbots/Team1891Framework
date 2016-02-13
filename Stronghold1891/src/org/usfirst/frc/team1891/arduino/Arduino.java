@@ -11,13 +11,16 @@ public class Arduino {
 	I2C arduino;
 	int address;
 	byte data[];
+	int value1;
+	int value2;
+	int value3;
 	
 	/**
 	 * @param address
 	 */
-	public Arduino(int address, I2C arduino)
+	public Arduino(int address)
 	{
-		this.arduino = arduino;
+		arduino = new I2C(I2C.Port.kOnboard, address);
 		this.address = address;
 		data = new byte[3];
 	}
@@ -28,7 +31,7 @@ public class Arduino {
 	 * @param val2 defines the dynamic level for the arduino to display
 	 * @param val3 defines the team color
 	 */
-	public void Write(int val1, int val2, int val3){
+	public void write(int val1, int val2, int val3){
 		data[0] = (byte) val1;
 		data[1] = (byte) val2;
 		data[2] = (byte) val3;
@@ -41,8 +44,8 @@ public class Arduino {
 	 */
 	public void writeState(int value)
 	{
-		data[0] = (byte) value;
-		arduino.writeBulk(data);
+		value1 = (byte) value;
+		write(value1,value2,value3);
 	}
 	
 	/**
@@ -52,18 +55,18 @@ public class Arduino {
 	 */
 	public void writeDynamic(int value)
 	{
-		data[1] = (byte) value;
-		arduino.writeBulk(data);
+		value2 = (byte) value;
+		write(value1,value2,value3);
 	}
 	
 	/**
-	 * changes team color value, shouldn't be used under normal circumstances
+	 * changes team color value
 	 * @param value val3 defines the team color
 	 * 
 	 */
 	public void writeTeam(int value)
 	{
-		data[2] = (byte) value;
-		arduino.writeBulk(data);
+		value3 = (byte) value;
+		write(value1,value2,value3);
 	}
 }
