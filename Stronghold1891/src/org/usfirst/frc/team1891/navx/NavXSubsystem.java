@@ -2,6 +2,8 @@ package org.usfirst.frc.team1891.navx;
 import com.kauailabs.navx.frc.AHRS;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.concurrent.ArrayBlockingQueue;
 /**
  * @author Josh
@@ -85,72 +87,89 @@ public class NavXSubsystem {
 		Yaw.add(nav.getYaw());
 		Yaw.remove();
 		yaw = ave(Yaw.toArray(new Float[Yaw.size()]));
+		SmartDashboard.putNumber(   "IMU_Yaw",              nav.getYaw());
 		
 		Angle.add(nav.getAngle());
 		Angle.remove();
 		angle = ave(Angle.toArray(new Double[Angle.size()]));
+		SmartDashboard.putNumber(   "IMU_TotalYaw",         nav.getAngle());
 		
 		WorldLinearAccelX.add(nav.getWorldLinearAccelX());
 		WorldLinearAccelX.remove();
 		worldLinearAccelX = ave(WorldLinearAccelX.toArray(new Float[WorldLinearAccelX.size()]));
+		SmartDashboard.putNumber(   "IMU_Accel_X",          nav.getWorldLinearAccelX());
 
 		WorldLinearAccelY.add(nav.getWorldLinearAccelY());
 		WorldLinearAccelY.remove();
 		worldLinearAccelY = ave(WorldLinearAccelX.toArray(new Float[WorldLinearAccelY.size()]));
+		SmartDashboard.putNumber(   "IMU_Accel_Y",          nav.getWorldLinearAccelY());
 		
 		moving = nav.isMoving();
+		SmartDashboard.putBoolean(  "IMU_IsMoving",         nav.isMoving());
 		
 		VelocityX.add(nav.getVelocityX());
 		VelocityX.remove();
 		velocityX = ave(VelocityX.toArray(new Float[VelocityX.size()]));
+		SmartDashboard.putNumber(   "Velocity_X",           nav.getVelocityX());
 		
 		VelocityY.add(nav.getVelocityY());
 		VelocityY.remove();
 		velocityY = ave(VelocityY.toArray(new Float[VelocityY.size()]));
+		SmartDashboard.putNumber(   "Velocity_Y",           nav.getVelocityY());
 		
 		DisplacementX.add(nav.getDisplacementX());
 		DisplacementX.remove();
 		displacementX = ave(DisplacementX.toArray(new Float[DisplacementX.size()]));
+		SmartDashboard.putNumber(   "Displacement_X",       nav.getDisplacementX());
 		
 		DisplacementY.add(nav.getDisplacementY());
 		DisplacementY.remove();
 		displacementY = ave(DisplacementY.toArray(new Float[DisplacementY.size()]));
+		SmartDashboard.putNumber(   "Displacement_Y",       nav.getDisplacementY());
 		
 		RawGyroX.add(nav.getRawGyroX());
 		RawGyroX.remove();
 		rawGyroX = ave(RawGyroX.toArray(new Float[RawGyroX.size()]));
+		SmartDashboard.putNumber(   "RawGyro_X",            nav.getRawGyroX());
 		
 		RawGyroY.add(nav.getRawGyroY());
 		RawGyroY.remove();
 		rawGyroY = ave(RawGyroY.toArray(new Float[RawGyroY.size()]));
+		SmartDashboard.putNumber(   "RawGyro_Y",            nav.getRawGyroY());
 		
 		RawGyroZ.add(nav.getRawGyroZ());
 		RawGyroZ.remove();
 		rawGyroZ = ave(RawGyroZ.toArray(new Float[RawGyroZ.size()]));
+		SmartDashboard.putNumber(   "RawGyro_Z",            nav.getRawGyroZ());
 		
 		RawAccelX.add(nav.getRawAccelX());
 		RawAccelX.remove();
-		rawAccelX = ave(RawAccelX.toArray(new Float[RawAccelX.size()]));
+		SmartDashboard.putNumber(   "RawAccel_X",           nav.getRawAccelX());
 		
 		RawAccelY.add(nav.getRawAccelY());
 		RawAccelY.remove();
 		rawAccelY = ave(RawAccelY.toArray(new Float[RawAccelY.size()]));
+		SmartDashboard.putNumber(   "RawAccel_Y",           nav.getRawAccelY());
 		
 		RawAccelZ.add(nav.getRawAccelZ());
 		RawAccelZ.remove();
 		rawAccelZ = ave(RawAccelZ.toArray(new Float[RawAccelZ.size()]));
+		SmartDashboard.putNumber(   "RawAccel_Z",           nav.getRawAccelZ());
 		
 		RawMagX.add(nav.getRawMagX());
 		RawMagX.remove();
 		rawMagX = ave(RawMagX.toArray(new Float[RawMagX.size()]));
+		SmartDashboard.putNumber(   "RawMag_X",             nav.getRawMagX());
 		
 		RawMagY.add(nav.getRawMagY());
 		RawMagY.remove();
 		rawMagY = ave(RawMagY.toArray(new Float[RawMagY.size()]));
+		SmartDashboard.putNumber(   "RawMag_Y",             nav.getRawMagY());
 		
 		RawMagZ.add(nav.getRawMagZ());
 		RawMagZ.remove();
 		rawMagZ = ave(RawMagZ.toArray(new Float[RawMagZ.size()]));
+		SmartDashboard.putNumber(   "RawMag_Z",             nav.getRawMagZ());
 	}
 	
 	/**
