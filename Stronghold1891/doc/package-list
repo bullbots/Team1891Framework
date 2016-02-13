@@ -1,6 +1,8 @@
+org.usfirst.frc.team1891.arduino
 org.usfirst.frc.team1891.drivesystem
 org.usfirst.frc.team1891.filewriter
 org.usfirst.frc.team1891.joysticks
+org.usfirst.frc.team1891.machinestate2016
 org.usfirst.frc.team1891.motorcontroller
 org.usfirst.frc.team1891.navx
 org.usfirst.frc.team1891.pneumatics
