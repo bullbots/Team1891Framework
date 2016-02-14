@@ -63,20 +63,16 @@ void loop() {
     switch(data[0]) {
       //default sequence, used for before match
       case 0:
-        wipeColor(strip.Color(0,0,127));
-        for (int i=0; i<=29; i++) {
-          double color = colorFade(i,127,0,0,0,0,127);
-          for (int x=0; x<=i; x++) {
-            strip.setPixelColor(x, color);
-            strip.show();
+        for (int x=0; x<=30; x++) {
+          for (int i=0; i<=30; i++) {
+            int q = i+x;
+            if (q > 30) {
+              q = q-30;
+            }
+            setPixel(i, colorFade(q, 0,0,127,0,60,60));
           }
-        }
-        for (int i=0; i<=29; i++) {
-          double color = colorFade(i,127,0,0,0,0,127);
-          for (int x=0; x<=i; x++) {
-            strip.setPixelColor(29-x, color);
-            strip.show();
-          }
+        delay(50);
+        strip.show();
         }
         break;
       //first autonomous state
@@ -106,7 +102,21 @@ void loop() {
         break;
       //fourth autonomous state
       case 4:
-      
+        wipeColor(strip.Color(0,0,127));
+        for (int i=0; i<=29; i++) {
+          double color = colorFade(i,127,0,0,0,0,127);
+          for (int x=0; x<=i; x++) {
+            strip.setPixelColor(x, color);
+            strip.show();
+          }
+        }
+        for (int i=0; i<=29; i++) {
+          double color = colorFade(i,127,0,0,0,0,127);
+          for (int x=0; x<=i; x++) {
+            strip.setPixelColor(29-x, color);
+            strip.show();
+          }
+        }
         break;
       //fifth autonomous state
       case 5:
@@ -143,15 +153,24 @@ void loop() {
           strip.setPixelColor(29,0);
         }
         break;
-      //first teleop state
+      //collecting teleop state
       case 9:
-      
+        for (int x=0; x<=29; x++) {
+          strip.setPixelColor(x, strip.Color(127,random(16),random(5)));
+          strip.show();
+          delay(30);
+        }
+        for (int x=0; x<=29; x++) {
+          strip.setPixelColor(29-x, strip.Color(random(15),random(127),127));
+          strip.show();
+          delay(30);
+        }
         break;
-      //second teleop state
+      //shooting teleop state
       case 10:
       
         break;
-      //third teleop state
+      //driving teleop state
       case 11:
       
         break;

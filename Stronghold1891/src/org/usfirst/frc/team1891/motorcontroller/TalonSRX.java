@@ -131,4 +131,24 @@ public class TalonSRX {
 	{
 		talon.set(volt);
 	}
+	
+	/**
+	 * Sets specified talon to speed mode with PID and enables it.
+	 */
+	public void initSpeed()
+	{
+		talon.setControlMode(2);
+		talon.configEncoderCodesPerRev(codesPerRev);
+		talon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
+		talon.enableControl();
+	}
+	
+	/**
+	 * Sets the speed for the motor to move at
+	 * @param speed specifies a speed for motor to be set to
+	 */
+	public void setSpeed(double speed)
+	{
+		talon.set(speed);
+	}
 }
