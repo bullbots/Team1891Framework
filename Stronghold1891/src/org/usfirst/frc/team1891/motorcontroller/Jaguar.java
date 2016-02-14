@@ -128,4 +128,22 @@ public class Jaguar {
 	{
 		jag.set(volt);
 	}
+	
+	/**
+	 * Sets jag to speed mode with PID and enables it
+	 */
+	public void initSpeed()
+	{
+		jag.setSpeedMode(CANJaguar.kQuadEncoder, codesPerRev, 0.1, 0.01, 0);
+		jag.enableControl();
+	}
+	
+	/**
+	 * Sets jag to a specified speed
+	 * @param speed speed to be set to.
+	 */
+	public void setSpeed(double speed)
+	{
+		jag.set(speed);
+	}
 }
