@@ -59,87 +59,35 @@ void loop() {
     team = true;
   }
   
-  //blue case
-  if (team == false) {
-    switch(data[0]) {
-      //default sequence, used for before match
-      case 0:
-        
-        break;
-      //auto driving state
-      case 1:
-        
-        break;
-      //auto shooting state
-      case 2:
+  switch(data[0]) {
+    //default sequence, used for before match
+    case 0:
       
-        break;
-      //finished auto state
-      case 3:
-        
-        break;
-      //teleop driving state
-      case 4:
-        
-        break;
-      //collecting state
-      case 5:
-        
-        break;
-      //shooting state
-      case 6:
-        
-        break;
-      //lifting state
-      case 7:
-        
-        break;
-      //end game disabled state
-      case 8:
+      break;
+    //shooting state
+    case 1:
+    
+      break;
+    //driving state
+    case 2:
+    
+      break;
+    //collecting state
+    case 3:
       
-        break;
-    }
-  }
-  //red case
-  else if (team == true) {
-    switch(data[0]) {
-      //default sequence, used for before match
-      case 0:
+      break;
+    //lifting state
+    case 4:
         
-        break;
-      //auto driving state
-      case 1:
+      break;
+    //auto finished state
+    case 5:
         
-        break;
-      //auto shooting state
-      case 2:
-      
-        break;
-      //finished auto state
-      case 3:
+      break;
+    //end game disabled state
+    case 6:
         
-        break;
-      //teleop driving state
-      case 4:
-        
-        break;
-      //collecting state
-      case 5:
-        
-        break;
-      //shooting state
-      case 6:
-        
-        break;
-      //lifting state
-      case 7:
-        
-        break;
-      //end game disabled state
-      case 8:
-      
-        break;
-    }
+      break;
   }
 }
 
