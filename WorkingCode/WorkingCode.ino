@@ -47,6 +47,7 @@ void setup() {
   Wire.begin(4);
   Wire.onReceive(receiveEvent);
 }
+double maxTime = 0;
 
 
 void loop() {
@@ -97,8 +98,10 @@ void loop() {
       break;
     //driving state
     case 2:
-    
+      if(!team) driveSpeedBlue(data[1]);
+      else driveSpeedRed(data[1]);
       break;
+      
     //collecting state
     case 3:
       if (!team)
@@ -179,9 +182,79 @@ void loop() {
       }
       break;
   }
+    for(int a=0; a<30; a++){
+      wipeColor(a,0); 
+    }
 }
 
 //methods
+
+void countdownRed(double s){
+  for(int a=0; a<30; a++){
+    wipeColor(a,strip.Color(120,15,7)); 
+  }
+  if(s>maxTime)maxTime = s;
+  double ratio = (s/maxTime)*30;
+  for(int a=0; a<ratio; a++){
+   wipeColor(29-a,0);
+  }
+  strip.show();
+}
+
+void countdownBlue(double s){
+  for(int a=0; a<30; a++){
+    wipeColor(a,strip.Color(0,50,120)); 
+  }
+  if(s>maxTime)maxTime = s;
+  double ratio = (s/maxTime)*30;
+  for(int a=0; a<ratio; a++){
+   wipeColor(29-a,0);
+  }
+  strip.show();
+  if(ratio <.01)maxTime =0;
+}
+
+void driveSpeedRed(double s){
+  double b = abs(s)*30;
+  if(s>0){
+     for(int a = 0; a<b; a++){
+       wipeColor(a,strip.Color(120, 0, 60-b*2));
+     }
+     for(int a = b-1; a<b; a++){
+       wipeColor(a,strip.Color(80, 0, 120));
+     }
+  }
+  if(s<0){
+     for(int a = 0; a<b; a++){
+       wipeColor(a,strip.Color(120, 30-b, 0));
+     }
+     for(int a = b-1; a<b; a++){
+       wipeColor(a,strip.Color(120, 60, 0));
+     }
+  }
+  strip.show();
+}
+
+void driveSpeedBlue(double s){
+  double b = abs(s)*30;
+  if(s>0){
+     for(int a = 0; a<b; a++){
+       wipeColor(a,strip.Color(60-b*2, 0, 120));
+     }
+     for(int a = b-1; a<b; a++){
+       wipeColor(a,strip.Color(120, 0, 80));
+     }
+  }
+  if(s<0){
+     for(int a = 0; a<b; a++){
+       wipeColor(a,strip.Color(0, 90-b*3, 120));
+     }
+     for(int a = b-1; a<b; a++){
+       wipeColor(a,strip.Color(0, 120, 80));
+     }
+  }
+  strip.show();
+}
 
 double rainbow(int index) {
   int k;
