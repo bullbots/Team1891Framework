@@ -65,36 +65,17 @@ void loop() {
     case 0:
       if (!team)
       {
-        for (int x=0; x<=30; x++) {
-          for (int i=0; i<=30; i++) {
-            int q = i+x;
-            if (q > 30) {
-              q = q-30;
-            }
-            setPixel(i, colorFade(q, 0,0,127,0,60,60));
-          }
-          delay(50);
-          strip.show();
-        }
+        waveBlue();
       }
       else if (team)
       {
-        for (int x=0; x<=30; x++) {
-          for (int i=0; i<=30; i++) {
-            int q = i+x;
-            if (q > 30) {
-              q = q-30;
-            }
-            setPixel(i, colorFade(q, 127,3,0,70,50,40));
-          }
-          delay(50);
-          strip.show();
-        }
+        waveRed();
       }
       break;
     //shooting state
     case 1:
-    
+      if (!team) launchBlue();
+      else launchRed();
       break;
     //driving state
     case 2:
@@ -104,82 +85,22 @@ void loop() {
       
     //collecting state
     case 3:
-      if (!team)
-      {
-        for (int x=0; x<=30; x++)
-        {
-          strip.setPixelColor(x, strip.Color(0,0,127));
-          strip.show();
-          delay(20);
-        }
-        for (int x=30; x>=0; x--)
-        {
-          strip.setPixelColor(x, 0);
-          strip.show();
-          delay(20);
-        }
-      }
-      else if(team)
-      {
-        for (int x=0; x<=30; x++)
-        {
-          strip.setPixelColor(x, strip.Color(127,0,0));
-          strip.show();
-          delay(20);
-        }
-        for (int x=30; x>=0; x--)
-        {
-          strip.setPixelColor(x, 0);
-          strip.show();
-          delay(20);
-        }
-      }
+      if (!team) downAndBackBlue();
+
+      else downAndBackRed();
       break;
     //lifting state
     case 4:
-      for(int x=0; x<=14; x++)
-      {
-        strip.setPixelColor(x, strip.Color(80,80,80));
-        strip.setPixelColor(x-4, 0);
-        strip.setPixelColor(29-x, strip.Color(80,80,80));
-        strip.setPixelColor(33-x, 0);
-        strip.show();
-        delay(50);
-      }
-      for(int x=0; x<=14; x++)
-      {
-        strip.setPixelColor(14-x, rainbow(14-x));
-        strip.setPixelColor(15+x, rainbow(15+x));
-        strip.show();
-        delay(20);
-      }
+      rainbowCrash();
       break;
     //auto finished state
     case 5:
-        
+      if (!team) countdownBlue(data[1]);
+      else countdownRed(data[1]);
       break;
     //end game disabled state
     case 6:
-      for (int i=29; i>=0; i--) {
-        for (int x=0; x<=i; x++) {
-          strip.setPixelColor(x, rainbow(i));
-          strip.setPixelColor(x-1, strip.Color(0,0,0));
-          strip.show();
-          delay(20);
-        }
-      }
-      for (int i=0; i<=13; i++) {
-        for (int x=i; x>=0; x--) {
-          strip.setPixelColor(x, rainbow(i));
-          strip.setPixelColor(x+1, strip.Color(0,0,0));
-          strip.setPixelColor(29-x, rainbow(29-i));
-          strip.setPixelColor(28-x, strip.Color(0,0,0));
-          strip.show();
-          delay(20);
-        }
-        strip.setPixelColor(0,0);
-        strip.setPixelColor(29,0);
-      }
+      rainbowTetris();
       break;
   }
     for(int a=0; a<30; a++){
@@ -254,6 +175,149 @@ void driveSpeedBlue(double s){
      }
   }
   strip.show();
+}
+
+void launchBlue() {
+  for (int x=0; x<=30; x++)
+  {
+    strip.setPixelColor(x, strip.Color(5,5,127));
+  }
+  strip.show();
+  if (data[1] = 1)
+  {
+    for (int x=0; x<=40; x++)
+    {
+      strip.setPixelColor(x, strip.Color(0,80,20));
+      strip.setPixelColor(x-10, strip.Color(5,5,127));
+      strip.show();
+      delay(10);
+    }
+  }
+}
+
+void launchRed() {
+  for (int x=0; x<=30; x++)
+  {
+    strip.setPixelColor(x, strip.Color(127,1,1));
+  }
+  strip.show();
+  if (data[1] = 1)
+  {
+    for (int x=0; x<=40; x++)
+    {
+      strip.setPixelColor(x,strip.Color(60,30,0));
+      strip.setPixelColor(x-10, strip.Color(127,1,1));
+      strip.show();
+      delay(10);
+    }
+  }
+}
+
+void waveBlue() {
+  for (int x=0; x<=30; x++) {
+    for (int i=0; i<=30; i++) {
+      int q = i+x;
+      if (q > 30) {
+        q = q-30;
+      }
+      strip.setPixelColor(i, colorFade(q, 0,0,127,0,60,60));
+    }
+  delay(50);
+  strip.show();
+  }
+}
+
+void waveRed() {
+  for (int x=0; x<=30; x++) {
+    for (int i=0; i<=30; i++) {
+      int q = i+x;
+      if (q > 30) {
+        q = q-30;
+      }
+      strip.setPixelColor(i, colorFade(q, 127,3,0,70,50,40));
+    }
+    delay(50);
+    strip.show();
+  }
+}
+
+void downAndBackBlue() {
+  for (int x=0; x<=30; x++)
+    {
+      strip.setPixelColor(x, strip.Color(0,0,127));
+      strip.show();
+      delay(20);
+    }
+    for (int x=30; x>=0; x--)
+    {
+      strip.setPixelColor(x, 0);
+      strip.show();
+    delay(20);
+    }
+}
+
+void downAndBackRed() {
+  for (int x=0; x<=30; x++)
+  {
+    strip.setPixelColor(x, strip.Color(127,0,0));
+    strip.show();
+    delay(20);
+  }
+  for (int x=30; x>=0; x--)
+  {
+  strip.setPixelColor(x, 0);
+  strip.show();
+  delay(20);
+  }
+}
+
+void rainbowTetris() {
+  for (int i=29; i>=0; i--) {
+    for (int x=0; x<=i; x++) {
+      strip.setPixelColor(x, rainbow(i));
+      strip.setPixelColor(x-1, strip.Color(0,0,0));
+      strip.show();
+      delay(20);
+    }
+  }
+  for (int i=0; i<=13; i++) {
+    for (int x=i; x>=0; x--) {
+      strip.setPixelColor(x, rainbow(i));
+      strip.setPixelColor(x+1, strip.Color(0,0,0));
+      strip.setPixelColor(29-x, rainbow(29-i));
+      strip.setPixelColor(28-x, strip.Color(0,0,0));
+      strip.show();
+      delay(20);
+    }
+    strip.setPixelColor(0,0);
+    strip.setPixelColor(29,0);
+  }
+}
+
+void rainbowCrash() {
+  for(int x=0; x<=14; x++)
+    {
+      strip.setPixelColor(x, strip.Color(80,80,80));
+      strip.setPixelColor(x-4, 0);
+      strip.setPixelColor(29-x, strip.Color(80,80,80));
+      strip.setPixelColor(33-x, 0);
+      strip.show();
+      delay(50);
+    }
+    for(int x=0; x<=14; x++)
+    {
+      strip.setPixelColor(14-x, rainbow(14-x));
+      strip.setPixelColor(15+x, rainbow(15+x));
+      strip.show();
+      delay(20);
+    }
+}
+
+double colorFade(int x, int r1, int g1, int b1, int r2, int g2, int b2) {
+  double rFade = (r2 - r1)/30;
+  double gFade = (g2 - g1)/30;
+  double bFade = (b2 - b1)/30;
+  return strip.Color(r1 + rFade*x, g1 + gFade*x, b1 + bFade*x);
 }
 
 double rainbow(int index) {
