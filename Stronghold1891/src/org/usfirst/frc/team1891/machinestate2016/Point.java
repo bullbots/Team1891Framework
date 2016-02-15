@@ -32,4 +32,8 @@ public class Point {
 	public int getY(){
 		return this.y;
 	}
+	
+	public String toString(){
+		return "["+x+","+y+"]";
+	}
 }

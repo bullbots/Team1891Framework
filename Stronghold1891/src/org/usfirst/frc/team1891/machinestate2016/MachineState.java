@@ -4,8 +4,7 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.concurrent.LinkedBlockingQueue;
+import java.util.LinkedList;
 import org.usfirst.frc.team1891.filewriter.LogWriter;
 
 /**
@@ -25,12 +24,15 @@ public class MachineState{
 	private int fieldX=351;//inches
 	private int fieldY=319;//inches
 	private int stateNum=0;
+	private final int SHIFT_AMOUNT=23;//To be used in path validation
 	private char[][] field= new char[fieldX][fieldY];
 	private Point startingPosition=null;
 	private Point shootingPosition=null;
-	private String path="fieldcsv/field.csv";
-	private LinkedBlockingQueue<CurrentPath> possibleRoutes = new LinkedBlockingQueue<CurrentPath>();
-	private ArrayList<Point> solutionPath;
+	private String path="/home/lvuser/fieldcsv/field.csv";//"C:\\Users\\Tyler\\OneDrive\\FIRST\\Stronghold\\Stronghold1891\\fieldcsv\\field.csv";
+	private LinkedList<Point> solutionPath = new LinkedList<Point>();//The solution path once it is found.
+	private LinkedList<Point> lineThroughShooting = new LinkedList<Point>();//A line of points through the shooting position
+	private LinkedList<Point> lineThroughStarting = new LinkedList<Point>();//A line of points through the starting position
+	private LinkedList<Point> driveLine = new LinkedList<Point>();//A line that connects the shooting line and the starting line.
 	/**
 	 *0. Find crossable defense, robot should be looking for closest possible defense.
 	 *1. Route path to defense, while the crossable defense can be found robot should be routing a path to the defense.
@@ -107,7 +109,6 @@ public class MachineState{
 	public void findShotestPath(){
 		long startTime = System.currentTimeMillis();
 		System.out.println("Start Time: "+(startTime/1000));
-		MachineState st = new MachineState();
 		//W== wall, robot cannot go over and should not be within 12 cells of the R
 		//G== goal tower
 		//R==ramps
@@ -141,91 +142,40 @@ public class MachineState{
 				}
 			}
 		}
-
-		CurrentPath startingPath = new CurrentPath();
-		startingPath.addPoint(startingPosition, shootingPosition, field);
-		possibleRoutes.offer(startingPath);
-		//Finding the actual path
-		boolean pointFound=false;
-		while(pointFound!=true){
-			CurrentPath tmpSacred =possibleRoutes.poll();
-//			System.out.println(possibleRoutes.size());
-//			System.out.println(tmpSacred.getPath().toString());
-			//Adding north
-			{
-				CurrentPath tmpN = new CurrentPath(tmpSacred.getPath(), tmpSacred.getNumOfTurns());
-				if(tmpN.getHeadOfPath()!=null){
-					int retVal= tmpN.addPoint( new Point((int)tmpN.getHeadOfPath().getX(), (int)tmpN.getHeadOfPath().getY()+1), shootingPosition, field);
-					if(retVal==0){
-						//Do nothing because pointless
-					}else if(retVal==1){
-						//Viable path, continue the search.
-						possibleRoutes.offer(tmpN);
-					}else if(retVal ==2){
-						//Solution found
-						pointFound=true;
-						solutionPath=tmpN.getPath();
-					}
-				}
-			}
-			//Adding east
-//			{
-//				CurrentPath tmpE = new CurrentPath(tmpSacred.getPath(), tmpSacred.getNumOfTurns());
-//				if(tmpE.getHeadOfPath()!=null){
-//					int retVal= tmpE.addPoint( new Point((int)tmpE.getHeadOfPath().getX()+1, (int)tmpE.getHeadOfPath().getY()), shootingPosition, field);
-//					if(retVal==0){
-//						//Do nothing because pointless
-//					}else if(retVal==1){
-//						//Viable path, continue the search.
-//						possibleRoutes.offer(tmpE);
-//					}else if(retVal ==2){
-//						//Solution found
-//						pointFound=true;
-//						solutionPath=tmpE.getPath();
-//					}
-//				}
-//			}
-			//Adding south
-			{
-				CurrentPath tmpS = new CurrentPath(tmpSacred.getPath(), tmpSacred.getNumOfTurns());
-				if(tmpS.getHeadOfPath()!=null){
-					int retVal= tmpS.addPoint( new Point((int)tmpS.getHeadOfPath().getX(), (int)tmpS.getHeadOfPath().getY()-1), shootingPosition, field);
-					if(retVal==0){
-						//Do nothing because pointless
-					}else if(retVal==1){
-						//Viable path, continue the search.
-						possibleRoutes.offer(tmpS);
-					}else if(retVal ==2){
-						//Solution found
-						pointFound=true;
-						solutionPath=tmpS.getPath();
-					}
-				}
-			}
-			//Adding west
-			{
-				CurrentPath tmpW = new CurrentPath(tmpSacred.getPath(), tmpSacred.getNumOfTurns());
-				if(tmpW.getHeadOfPath()!=null){
-					int retVal= tmpW.addPoint( new Point((int)tmpW.getHeadOfPath().getX()-1, (int)tmpW.getHeadOfPath().getY()), shootingPosition, field);
-					if(retVal==0){
-						//Do nothing because pointless
-					}else if(retVal==1){
-						//Viable path, continue the search.
-						possibleRoutes.offer(tmpW);
-					}else if(retVal ==2){
-						//Solution found
-						pointFound=true;
-						solutionPath=tmpW.getPath();
-					}
-				}
-			}		
-//			try {
-//				Thread.sleep(250);
-//			} catch (InterruptedException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
+		
+		//Create shooting line
+		for(int i=0; i<fieldY; i++){
+			lineThroughShooting.add(new Point(shootingPosition.getX(), i));
 		}
+		
+		//Create starting line
+		for(int i=0; i<fieldY; i++){
+			lineThroughStarting.add(new Point(startingPosition.getX(), i));
+		}
+		
+		//Create first connection line
+		for(int i=0; i<Math.abs((shootingPosition.getX()-startingPosition.getX())); i++){
+			driveLine.add(new Point(i+shootingPosition.getX(), fieldY-1));
+		}
+		
+		
+		//Finding the actual path
+		boolean pathFound=false;
+		while(pathFound!=true){
+			if(validatePath(driveLine)){
+				//Yay, good path
+				pathFound=true;
+				removeAllUselessPath();
+			}else{
+				//bad path, try again.
+				for(int i=0; i<driveLine.size(); i++){
+					driveLine.get(i).y--;
+				}
+			}
+		}
+		
+		
+		
 //		for(int i=0; i<fieldY; i++){
 //			for(int j=0; j<fieldX; j++){
 //				boolean path=false;
@@ -244,5 +194,101 @@ public class MachineState{
 		long endTime   = System.currentTimeMillis();
 		long totalTime = endTime - startTime;
 		System.out.println("Total runtime: "+totalTime);
+	}
+	
+	private void removeAllUselessPath() {
+		//Trim shooting line
+		
+		if(driveLine.getFirst().getY() > shootingPosition.getY()){
+			//If the drive line is above, north
+			for(int i=0; i< lineThroughShooting.size();i++){
+				if(lineThroughShooting.get(i).getY() < shootingPosition.getY()){
+					lineThroughShooting.remove(i);
+					i--;
+				}else if(lineThroughShooting.get(i).getY() > driveLine.getFirst().getY()){
+					lineThroughShooting.remove(i);
+					i--;
+				}
+			}
+		}else if(driveLine.getFirst().getY() < shootingPosition.getY()){
+			//If the drive line is below, south
+			for(int i=0; i< lineThroughShooting.size();i++){
+				if(lineThroughShooting.get(i).getY() > shootingPosition.getY()){
+					lineThroughShooting.remove(i);
+					i--;
+				}else if(lineThroughShooting.get(i).getY() < driveLine.getFirst().getY()){
+					lineThroughShooting.remove(i);
+					i--;
+				}
+			}
+		}else{
+			//If they are on the same level
+			lineThroughShooting.clear();
+		}
+		
+		//Trim starting line
+		if(driveLine.getFirst().getY() > shootingPosition.getY()){
+			//If the drive line is above, north
+			for(int i=0; i< lineThroughStarting.size();i++){
+				if(lineThroughStarting.get(i).getY() < startingPosition.getY()){
+					lineThroughStarting.remove(i);
+					i--;
+				}else if(lineThroughStarting.get(i).getY() > driveLine.getFirst().getY()){
+					lineThroughStarting.remove(i);
+					i--;
+				}
+			}
+		}else if(driveLine.getFirst().getY() < shootingPosition.getY()){
+			//If the drive line is below, south
+			for(int i=0; i< lineThroughStarting.size();i++){
+				if(lineThroughStarting.get(i).getY() > startingPosition.getY()){
+					lineThroughStarting.remove(i);
+					i--;
+				}else if(lineThroughStarting.get(i).getY() < driveLine.getFirst().getY()){
+					lineThroughStarting.remove(i);
+					i--;
+				}
+			}
+		}else{
+			//If they are on the same level
+			lineThroughShooting.clear();
+		}
+		
+		appendPathsToSolutionPath();
+		
+	}
+
+	private void appendPathsToSolutionPath() {
+		for(int i=0; i<lineThroughShooting.size();i++){
+			solutionPath.add(lineThroughShooting.get(i));
+		}
+		
+		for(int i=0; i<lineThroughStarting.size();i++){
+			solutionPath.add(lineThroughStarting.get(i));
+		}
+		
+		for(int i=0; i<driveLine.size();i++){
+			solutionPath.add(driveLine.get(i));
+		}
+		
+	}
+
+	private boolean validatePath(LinkedList<Point> path){
+		for(int i=0; i<path.size(); i++){
+			try{
+				for(int j=0; j<SHIFT_AMOUNT;j++){
+					if(field[(int) path.get(i).getX()][(int) (path.get(i).getY()+j)]=='W' ||
+						field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W'){
+						return false;
+					}
+				}
+			}catch(ArrayIndexOutOfBoundsException e){
+				System.out.println("test");
+				return false;
+			}
+		}
+		
+		return true;
+		
 	}
 }

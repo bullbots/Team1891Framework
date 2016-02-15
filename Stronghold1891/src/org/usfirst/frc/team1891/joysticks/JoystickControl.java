@@ -27,43 +27,43 @@ public class JoystickControl {
 	 * JoyVector contains all of the joystick data we might need
 	 */
 	public JoyVector vector;
-	
-/**
- * updates all of the data from the joystick and passes it to JoyVector
- */
+
+	/**
+	 * updates all of the data from the joystick and passes it to JoyVector
+	 */
 	public JoyVector getData()
 	{
 		switch(getProfile()){
 		case 0:
 			System.out.println("Not a supported controller!");
-			
-		break;
-		//xbox
+
+			break;
+			//xbox
 		case 1:
 			x = joy1Axis(0);
 			y = joy1Axis(1);
 			z = 0;
 			angle = getAngle(x, -y);
-		break;
-		//single Logitech Attack
+			break;
+			//single Logitech Attack
 		case 2:
 			x = joy1Axis(0);
 			y = joy1Axis(1);
 			z = 0;
 			angle = getAngle(x,-y);
-		break;
-		
+			break;
+
 		case 3:
-			
+
 			x = (joy1Axis(1)-joy2Axis(1))/2;
 			y = (joy1Axis(1)+joy2Axis(1))/2;
 			z = 0;
 			angle = getAngle(x,-y);
-		
+
 		}
 		return vector = new JoyVector(x, y, z, angle);
 	}
-	
+
 	/**
 	 * initiates the joystick
 	 * @param Joy
@@ -78,7 +78,7 @@ public class JoystickControl {
 	{
 		Stick1 = Joy;
 	}
-	
+
 	/**
 	 * @param axis is the axis you want to read
 	 * @return value for an axis
@@ -93,7 +93,7 @@ public class JoystickControl {
 		if (Math.abs(Stick2.getRawAxis(axis))>DEADZONE)return Stick2.getRawAxis(axis);
 		return 0;
 	}
-	
+
 	/**
 	 * @param xcom
 	 * @param ycom
@@ -126,7 +126,7 @@ public class JoystickControl {
 		}
 		return Math.toDegrees(angle);
 	}
-	
+
 	/**
 	 * @param button
 	 * @return if button is pressed
@@ -135,7 +135,7 @@ public class JoystickControl {
 	{
 		return Stick1.getRawButton(button);
 	}
-	
+
 	/**
 	 * This method identifies what type of joystick is plugged in. Xbox 360 is 1. Logitech Attack is 2.
 	 * @return value for joystick type index
@@ -143,35 +143,36 @@ public class JoystickControl {
 	public int getProfile()
 	{
 		//sets the profile to be Xbox (360 or One)
-		
-		
+
+
 		if(Stick1.getAxisCount() == 6 && (Stick1.getButtonCount() == 10||Stick1.getButtonCount() == 11))
 		{
 			return 1;
+		}
+		//sets the profile to be single Logitech Attack
+		else if(Stick1.getAxisCount() == 3 && Stick1.getButtonCount() == 11)
+		{
+			return 2;
 		}
 		//sets the profile to be dual Logitech Attack
 		else if(Stick1.getAxisCount() == 3 && Stick1.getButtonCount() == 11 && Stick2.getAxisCount() == 3 && Stick2.getButtonCount() == 11)
 		{
 			return 3;
 		}
-		
-		//sets the profile to be single Logitech Attack
-		else if(Stick1.getAxisCount() == 3 && Stick1.getButtonCount() == 11)
-		{
-			return 2;
-		}
+
+
 		return 0;
 	}
-	
-	
+
+
 	/**
 	 * IGNORE EVERYTHING BENEATH THIS, IT'S JUST FOR TESTING
 	 * @param index is the button index
 	 * @return whether or not the switch is on
 	 */
-	
+
 	public boolean buttonToggle(int index){
-		
+
 		if (!press && button(index) && release){
 			press=true;
 			on = true;
@@ -192,7 +193,7 @@ public class JoystickControl {
 		}
 		return on;
 	}
-	
+
 	/**
 	 * sets the joystick rumble pack
 	 * @param isOn true is if you want rumble, false is if you don't

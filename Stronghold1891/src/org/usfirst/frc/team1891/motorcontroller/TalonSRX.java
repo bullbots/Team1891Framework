@@ -2,6 +2,7 @@
 package org.usfirst.frc.team1891.motorcontroller;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 
 /**
  * @author Egan Schafer
@@ -137,10 +138,11 @@ public class TalonSRX {
 	 */
 	public void initSpeed()
 	{
-		talon.setControlMode(2);
-		talon.configEncoderCodesPerRev(codesPerRev);
+		talon.changeControlMode(CANTalon.TalonControlMode.Speed);
 		talon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
-		talon.enableControl();
+		talon.setPID(1.0, 0.0, 0.0);
+		talon.configEncoderCodesPerRev(codesPerRev);
+		talon.enable();
 	}
 	
 	/**
@@ -150,5 +152,14 @@ public class TalonSRX {
 	public void setSpeed(double speed)
 	{
 		talon.set(speed);
+	}
+	
+	public double getSpeed()
+	{
+		return talon.getSpeed();
+	}
+	
+	public TalonControlMode getMode(){
+		return talon.getControlMode();
 	}
 }

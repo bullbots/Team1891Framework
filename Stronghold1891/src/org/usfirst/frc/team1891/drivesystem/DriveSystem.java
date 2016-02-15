@@ -161,7 +161,31 @@ public class DriveSystem {
 	}
 
 	private static void driveTankDrivePID(JoyVector vec) {
-
+//		double joyXInput=vec.getX_comp()*100;
+//		double joyYInput=vec.getY_comp()*100;
+//		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
+//		double leftScal=((100-Math.abs(joyXInput))*(joyYInput/100)+joyYInput);
+//		double rightSideVoltageUnscaled=((rightScal+leftScal)/2);
+//		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
+//		double rightSideVoltage=((rightSideVoltageUnscaled*3)/25)*rampRate;
+//		double leftSideVoltage=((leftSideVoltageUnscaled*3)/25)*rampRate;
+		double rightSideVoltage=5;
+		double leftSideVoltage=-5;
+		for(MotorAndSide m: motorList){
+			if(m.jag!=null){
+				if(m.side.equals("RIGHT")){
+					
+				}else{
+					
+				}
+			}else if(m.talonSRX!=null){
+				if(m.side.equals("RIGHT")){
+					m.getTalonSRX().setSpeed(rightSideVoltage);
+				}else{
+					m.getTalonSRX().setSpeed(leftSideVoltage);
+				}
+			}
+		}
 	}
 
 	/**
@@ -169,11 +193,18 @@ public class DriveSystem {
 	 */
 	public void enableAll(){
 		for(MotorAndSide m : motorList){
-			
-			if(m.jag!=null){
-				m.getJag().initVoltage();
-			}else if(m.talonSRX!=null){
-				m.getTalonSRX().initVoltage();
+			if(currentDrive == driveModes.TANK_DRIVE){
+				if(m.jag!=null){
+					m.getJag().initSpeed();
+				}else if(m.talonSRX!=null){
+					m.getTalonSRX().initSpeed();
+				}
+			}else if(currentDrive == driveModes.TANK_DRIVE_PID){
+				if(m.jag!=null){
+					m.getJag().initSpeed();
+				}else if(m.talonSRX!=null){
+					m.getTalonSRX().initSpeed();
+				}
 			}
 		}
 	}
