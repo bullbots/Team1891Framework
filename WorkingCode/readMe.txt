@@ -6,7 +6,7 @@
 
 3 - collecting - down and back with red and blue
 
-4 - lifting - 
+4 - lifting - two white masses crash together and colors race off strip
 
 5 - auto finished state - reads match time and shows a progress bar for remaining time.
 
