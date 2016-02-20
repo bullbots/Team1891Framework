@@ -2,6 +2,7 @@ package org.usfirst.frc.team1891.drivesystem;
 import java.util.LinkedList;
 import org.usfirst.frc.team1891.filewriter.*;
 import org.usfirst.frc.team1891.joysticks.JoyVector;
+import org.usfirst.frc.team1891.machinestate2016.Point;
 
 import edu.wpi.first.wpilibj.Timer;
 
@@ -14,10 +15,25 @@ import edu.wpi.first.wpilibj.Timer;
 public class DriveSystem {
 
 	private static LinkedList<MotorAndSide> motorList= null;
-	private static double rampRate=0.2;
+	private static double rampRate=1;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
+	private double distancePerWheelRevolution=0; //The distance the robot travels per revolution of the wheel
 	
+	/**
+	 * @return the distance moved per revolution of the wheel
+	 */
+	public double getDistancePerWheelRevolution() {
+		return distancePerWheelRevolution;
+	}
+
+	/**
+	 * @param distancePerWheelRevolution sets the distance the robot moves per revolution of the wheel.
+	 */
+	public void setDistancePerWheelRevolution(double distancePerWheelRevolution) {
+		this.distancePerWheelRevolution = distancePerWheelRevolution;
+	}
+
 	//TODO: Involve these variables in the voltage equation.
 	private static int rightSideReverse=1;//Set to negative one if the right side needs negative voltage.
 	private static int leftSideReverse=-1;//Set to positive one if the left side needs positive voltage.
@@ -86,13 +102,32 @@ public class DriveSystem {
 	 * This method should be used primarily in telop as autonomous drive will operate differently.
 	 * @param vec the vector to drive on.
 	 */
+	@SuppressWarnings("null")
 	public void drive(JoyVector vec){
 		switch(currentDrive){
 		case TANK_DRIVE://Copy case statements for different drive systems.
 			driveTankDrive(vec);
 			break;
 		case TANK_DRIVE_PID:
-			driveTankDrivePID(vec);
+			driveTankDrivePID(vec, null);
+			break;
+		default:
+			break;
+		}
+	}
+	
+	/**
+	 * Dive method to be used into autonomous mode
+	 * @param vec the vector to drive on
+	 * @param path the path the robot should travel on, each input should be an inch that it should move.
+	 */
+	public void driveAuto(JoyVector vec, LinkedList<Point> path){
+		switch(currentDrive){
+		case TANK_DRIVE://Copy case statements for different drive systems.
+			driveTankDrive(vec);
+			break;
+		case TANK_DRIVE_PID:
+			driveTankDrivePID(vec, path);
 			break;
 		default:
 			break;
@@ -150,6 +185,7 @@ public class DriveSystem {
 					m.getJag().setVoltage(leftSideVoltage);
 				}
 			}else if(m.talonSRX!=null){
+				System.out.println(rightSideVoltage);
 				if(m.side.equals("RIGHT")){
 					m.getTalonSRX().setVoltage(rightSideVoltage);
 				}else{
@@ -160,7 +196,7 @@ public class DriveSystem {
 		//TODO deal with rampRate
 	}
 
-	private static void driveTankDrivePID(JoyVector vec) {
+	private static void driveTankDrivePID(JoyVector vec, LinkedList<Point> dist) {
 //		double joyXInput=vec.getX_comp()*100;
 //		double joyYInput=vec.getY_comp()*100;
 //		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
@@ -169,8 +205,8 @@ public class DriveSystem {
 //		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
 //		double rightSideVoltage=((rightSideVoltageUnscaled*3)/25)*rampRate;
 //		double leftSideVoltage=((leftSideVoltageUnscaled*3)/25)*rampRate;
-		double rightSideVoltage=5;
-		double leftSideVoltage=-5;
+		double rightSideVoltage=-500;
+		double leftSideVoltage=500;
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
@@ -179,10 +215,15 @@ public class DriveSystem {
 					
 				}
 			}else if(m.talonSRX!=null){
+				System.out.println(m.getTalonSRX().isEnabled());
 				if(m.side.equals("RIGHT")){
-					m.getTalonSRX().setSpeed(rightSideVoltage);
+					if(m.getTalonSRX().getID() == 4){
+						m.getTalonSRX().setPositionPID(rightSideVoltage);
+					}
 				}else{
-					m.getTalonSRX().setSpeed(leftSideVoltage);
+					if(m.getTalonSRX().getID() == 1){
+						m.getTalonSRX().setPositionPID(leftSideVoltage);
+					}
 				}
 			}
 		}
@@ -195,15 +236,22 @@ public class DriveSystem {
 		for(MotorAndSide m : motorList){
 			if(currentDrive == driveModes.TANK_DRIVE){
 				if(m.jag!=null){
-					m.getJag().initSpeed();
+					m.getJag().initVoltage();
 				}else if(m.talonSRX!=null){
-					m.getTalonSRX().initSpeed();
+					m.getTalonSRX().initVoltage();
+					System.out.println(m.getTalonSRX().getMode());
 				}
 			}else if(currentDrive == driveModes.TANK_DRIVE_PID){
 				if(m.jag!=null){
 					m.getJag().initSpeed();
 				}else if(m.talonSRX!=null){
-					m.getTalonSRX().initSpeed();
+					if(m.getTalonSRX().getID()==3){
+						m.getTalonSRX().followMeMode(4);
+					}else if(m.getTalonSRX().getID()==2){
+						m.getTalonSRX().followMeMode(1);
+					}else{
+						m.getTalonSRX().initSpeed();
+					}
 				}
 			}
 		}

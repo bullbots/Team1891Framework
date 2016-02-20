@@ -3,7 +3,6 @@ package org.usfirst.frc.team1891.pneumatics;
 import java.util.LinkedList;
 
 import edu.wpi.first.wpilibj.Compressor;
-import edu.wpi.first.wpilibj.Solenoid;
 
 /**
  * @author Tyler
@@ -11,7 +10,7 @@ import edu.wpi.first.wpilibj.Solenoid;
  */
 public class PnController {
 	
-	LinkedList<Solenoid> solenoids;
+	LinkedList<SolenoidBoth> solenoids;
 	LinkedList<Compressor> compressors;
 	/**
 	 * Constuctor for the pneumatics control. It would be advisable to add the solenoids to the list 
@@ -19,7 +18,7 @@ public class PnController {
 	 * @param solenoids a list of all solenoids currently on the system.
 	 * @param compressors a list of all compressors currently on the system.
 	 */
-	public PnController(LinkedList<Solenoid> solenoids, LinkedList<Compressor> compressors){
+	public PnController(LinkedList<SolenoidBoth> solenoids, LinkedList<Compressor> compressors){
 		this.solenoids=solenoids;
 		this.compressors=compressors;
 	}
@@ -63,16 +62,16 @@ public class PnController {
 	 * opposite solinoid you must call turnOffSolenoid before turning the opposite on.
 	 * @param index of the solenoid
 	 */
-	public void turnOnSolenoid(int index){
-		solenoids.get(index).set(true);
+	public void extend(int index){
+		solenoids.get(index).turnOn();
 	}
 	
 	/**
 	 * disables the current solenoid.
 	 * @param index of the solenoid.
 	 */
-	public void turnOffSolenoid(int index){
-		solenoids.get(index).set(false);
+	public void retract(int index){
+		solenoids.get(index).turnOff();
 	}
 	
 }

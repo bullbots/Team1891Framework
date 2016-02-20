@@ -10,6 +10,12 @@ import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
  */
 public class TalonSRX {
 	
+	
+	//Mode 0 is percent mode
+	//Mode 1 is position mode
+	//Mode 2 is speed mode
+	//Mode 3 is current mode
+	//Mode 4 is voltage mode
 	int codesPerRev;
 	CANTalon talon;
 
@@ -20,7 +26,7 @@ public class TalonSRX {
 	public TalonSRX(CANTalon talon)
 	{
 		this.talon = talon;
-		codesPerRev = 270;
+		codesPerRev = 350;
 	}
 	
 	/**
@@ -58,6 +64,7 @@ public class TalonSRX {
 	{
 		talon.setControlMode(0);
 		talon.enableControl();
+		
 	}
 	
 	/**
@@ -78,9 +85,9 @@ public class TalonSRX {
 	{
 		talon.setControlMode(1);
 		talon.configEncoderCodesPerRev(codesPerRev);
-		talon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
-		talon.setPID(0.1, 0.01, 0);
-		talon.enableControl();
+		talon.setFeedbackDevice(CANTalon.FeedbackDevice.CtreMagEncoder_Relative);
+		talon.setPID(0.01, 0, 0);
+		talon.enable();
 	}
 	
 	/** 
@@ -100,7 +107,7 @@ public class TalonSRX {
 	 */
 	public void initVoltagePID()
 	{
-		talon.setControlMode(4);
+		talon.changeControlMode(CANTalon.TalonControlMode.Speed);
 		talon.configEncoderCodesPerRev(codesPerRev);
 		talon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
 		talon.enableControl();
@@ -121,7 +128,7 @@ public class TalonSRX {
 	public void initVoltage()
 	{
 		talon.setControlMode(4);
-		talon.enableControl();
+		talon.enable();
 	}
 	
 	/**
@@ -161,5 +168,22 @@ public class TalonSRX {
 	
 	public TalonControlMode getMode(){
 		return talon.getControlMode();
+	}
+	
+	public double getRawVoltageOutput(){
+		return talon.getOutputVoltage();
+	}
+	
+	public boolean isEnabled(){
+		return talon.isControlEnabled();
+	}
+	
+	public void followMeMode(int toFollow){
+		talon.changeControlMode(TalonControlMode.Follower);
+    	talon.set(toFollow);
+	}
+	
+	public int getID(){
+		return talon.getDeviceID();
 	}
 }
