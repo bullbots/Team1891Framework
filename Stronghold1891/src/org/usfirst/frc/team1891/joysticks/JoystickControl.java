@@ -77,7 +77,7 @@ public class JoystickControl {
 	public void init(Joystick Joy)
 	{
 		Stick1 = Joy;
-		for(int a = 0; a<50; a++){
+		for(int a = 0; a<20; a++){
 			press[a] = false;
 			release[a] = true;
 			on[a] = false;

@@ -128,6 +128,8 @@ public class TalonSRX {
 	public void initVoltage()
 	{
 		talon.setControlMode(4);
+		talon.configEncoderCodesPerRev(codesPerRev);
+		talon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
 		talon.enable();
 	}
 	
@@ -185,5 +187,10 @@ public class TalonSRX {
 	
 	public int getID(){
 		return talon.getDeviceID();
+	}
+	
+	public double getFeedbackValuePosition()
+	{
+		return talon.getEncPosition();
 	}
 }
