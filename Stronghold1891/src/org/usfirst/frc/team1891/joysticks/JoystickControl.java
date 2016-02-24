@@ -15,9 +15,9 @@ public class JoystickControl {
 	double y;
 	double z;
 	double angle;
-	boolean press = false;
-	boolean release = true;
-	boolean on = false;
+	boolean[] press = new boolean[20];
+	boolean[] release = new boolean[20];
+	boolean[] on = new boolean[20];
 	int aCount = 0;
 	Timer time = new Timer();
 
@@ -77,6 +77,11 @@ public class JoystickControl {
 	public void init(Joystick Joy)
 	{
 		Stick1 = Joy;
+		for(int a = 0; a<20; a++){
+			press[a] = false;
+			release[a] = true;
+			on[a] = false;
+		}
 	}
 
 	/**
@@ -166,32 +171,31 @@ public class JoystickControl {
 
 
 	/**
-	 * IGNORE EVERYTHING BENEATH THIS, IT'S JUST FOR TESTING
 	 * @param index is the button index
 	 * @return whether or not the switch is on
 	 */
 
-	public boolean buttonToggle(int index){
-
-		if (!press && button(index) && release){
-			press=true;
-			on = true;
+	public boolean buttonToggle(int i){
+		
+		if (!press[i] && button(i) && release[i]){
+			press[i]=true;
+			on[i] = true;
 		}
-		else if (press && !button(index) && release){
-			press=false;
-			release = false;
-			on = true;
+		else if (press[i] && !button(i) && release[i]){
+			press[i]=false;
+			release[i] = false;
+			on[i] = true;
 		}
-		else if (!press && button(index) && !release){
-			press = true;
-			on = false;
+		else if (!press[i] && button(i) && !release[i]){
+			press[i] = true;
+			on[i] = false;
 		}
-		else if (press && !button(index) && !release){
-			press = false;
-			release = true;
-			on = false;
+		else if (press[i] && !button(i) && !release[i]){
+			press[i] = false;
+			release[i] = true;
+			on[i] = false;
 		}
-		return on;
+		return on[i];
 	}
 
 	/**

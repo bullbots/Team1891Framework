@@ -11,3 +11,5 @@
 5 - auto finished state - reads match time and shows a progress bar for remaining time - pass it the match time according to the driver station
 
 6 - end game disabled state - tetris stacking rainbow thing - call right at the end of teleop or when robot is disabled
+
+7 - low battery - rapid yellow flashes, must be called by robot when battery is low
