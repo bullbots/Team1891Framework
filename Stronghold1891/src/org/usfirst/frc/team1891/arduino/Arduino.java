@@ -14,6 +14,7 @@ public class Arduino {
 	int value1;
 	int value2;
 	int value3;
+	boolean lowBat;
 	
 	/**
 	 * @param address
@@ -23,6 +24,10 @@ public class Arduino {
 		arduino = new I2C(I2C.Port.kOnboard, address);
 		this.address = address;
 		data = new byte[3];
+		value1 = 0;
+		value2 = 0;
+		value3 = 0;
+		lowBat = false;
 	}
 	
 	/**
@@ -32,7 +37,14 @@ public class Arduino {
 	 * @param val3 defines the team color
 	 */
 	public void write(int val1, int val2, int val3){
-		data[0] = (byte) val1;
+		if (lowBat)
+		{
+			data[0] = 7;
+		}
+		else
+		{
+			data[0] = (byte) val1;
+		}
 		data[1] = (byte) val2;
 		data[2] = (byte) val3;
 		arduino.writeBulk(data);
@@ -68,5 +80,10 @@ public class Arduino {
 	{
 		value3 = (byte) value;
 		write(value1,value2,value3);
+	}
+	
+	public void lowBattery()
+	{
+		lowBat = true;
 	}
 }
