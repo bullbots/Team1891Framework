@@ -4,7 +4,9 @@ import org.usfirst.frc.team1891.filewriter.*;
 import org.usfirst.frc.team1891.joysticks.JoyVector;
 import org.usfirst.frc.team1891.machinestate2016.Point;
 
+import edu.wpi.first.wpilibj.Sendable;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * This class controls the drive system as a whole for the robot. There are a few configuration methods that should
@@ -16,10 +18,13 @@ public class DriveSystem {
 
 	private static LinkedList<MotorAndSide> motorList= null;
 	private static double rampRate=1;
+	private static double test=0;
 	LogWriter log = new LogWriter();
 	Timer rampTime = new Timer();//Timer used for the rampRate. 
 	private double distancePerWheelRevolution=0; //The distance the robot travels per revolution of the wheel
-	
+	private static double handicapCompensation=0.4;
+	private static LinkedList<Point> drivePath;
+	private static boolean hasDrivePath=false;
 	/**
 	 * @return the distance moved per revolution of the wheel
 	 */
@@ -109,30 +114,30 @@ public class DriveSystem {
 			driveTankDrive(vec);
 			break;
 		case TANK_DRIVE_PID:
-			driveTankDrivePID(vec, null);
+			driveTankDrivePID(vec);
 			break;
 		default:
 			break;
 		}
 	}
-	
-	/**
-	 * Dive method to be used into autonomous mode
-	 * @param vec the vector to drive on
-	 * @param path the path the robot should travel on, each input should be an inch that it should move.
-	 */
-	public void driveAuto(JoyVector vec, LinkedList<Point> path){
-		switch(currentDrive){
-		case TANK_DRIVE://Copy case statements for different drive systems.
-			driveTankDrive(vec);
-			break;
-		case TANK_DRIVE_PID:
-			driveTankDrivePID(vec, path);
-			break;
-		default:
-			break;
-		}
-	}
+	//	
+	//	/**
+	//	 * Dive method to be used into autonomous mode
+	//	 * @param vec the vector to drive on
+	//	 * @param path the path the robot should travel on, each input should be an inch that it should move.
+	//	 */
+	//	public void driveAuto(JoyVector vec){
+	//		switch(currentDrive){
+	//		case TANK_DRIVE://Copy case statements for different drive systems.
+	//			driveTankDrive(vec);
+	//			break;
+	//		case TANK_DRIVE_PID:
+	//			driveTankDrivePID(vec);
+	//			break;
+	//		default:
+	//			break;
+	//		}
+	//	}
 
 	/**
 	 * Method to configure the inverseness of the right side of the robot.
@@ -160,15 +165,15 @@ public class DriveSystem {
 
 	private static void driveTankDrive(JoyVector vec){
 
-//	    Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
-//	    Invert X
-//	    Calculate R+L (Call it V): V =(100-ABS(X)) * (Y/100) + Y
-//	    Calculate R-L (Call it W): W= (100-ABS(Y)) * (X/100) + X
-//	    Calculate R: R = (V+W) /2
-//	    Calculate L: L= (V-W)/2
-//	    Do any scaling on R and L your hardware may require.
-//	    Send those values to your Robot.
-//	    Go back to 1.
+		//	    Get X and Y from the Joystick, do whatever scaling and calibrating you need to do based on your hardware.
+		//	    Invert X
+		//	    Calculate R+L (Call it V): V =(100-ABS(X)) * (Y/100) + Y
+		//	    Calculate R-L (Call it W): W= (100-ABS(Y)) * (X/100) + X
+		//	    Calculate R: R = (V+W) /2
+		//	    Calculate L: L= (V-W)/2
+		//	    Do any scaling on R and L your hardware may require.
+		//	    Send those values to your Robot.
+		//	    Go back to 1.
 		double joyXInput=vec.getX_comp()*100;
 		double joyYInput=vec.getY_comp()*100;
 		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
@@ -185,7 +190,6 @@ public class DriveSystem {
 					m.getJag().setVoltage(leftSideVoltage);
 				}
 			}else if(m.talonSRX!=null){
-				System.out.println(rightSideVoltage);
 				if(m.side.equals("RIGHT")){
 					m.getTalonSRX().setVoltage(rightSideVoltage);
 				}else{
@@ -196,31 +200,34 @@ public class DriveSystem {
 		//TODO deal with rampRate
 	}
 
-	private static void driveTankDrivePID(JoyVector vec, LinkedList<Point> dist) {
-//		double joyXInput=vec.getX_comp()*100;
-//		double joyYInput=vec.getY_comp()*100;
-//		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
-//		double leftScal=((100-Math.abs(joyXInput))*(joyYInput/100)+joyYInput);
-//		double rightSideVoltageUnscaled=((rightScal+leftScal)/2);
-//		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
-//		double rightSideVoltage=((rightSideVoltageUnscaled*3)/25)*rampRate;
-//		double leftSideVoltage=((leftSideVoltageUnscaled*3)/25)*rampRate;
-		double rightSideVoltage=-500;
-		double leftSideVoltage=500;
+	private static void driveTankDrivePID(JoyVector vec) {
+
+		//For the 2016 robot assume we go 60 inches/second
+
+		double joyXInput=vec.getX_comp()*100;
+		double joyYInput=vec.getY_comp()*100;
+		double rightScal=((100-Math.abs(joyYInput))*(joyXInput/100)+joyXInput);
+		double leftScal=((100-Math.abs(joyXInput))*(joyYInput/100)+joyYInput);
+		double rightSideVoltageUnscaled=((rightScal+leftScal)/2);
+		double leftSideVoltageUnscaled=((rightScal-leftScal)/2);
+		double rightSideVoltage=((rightSideVoltageUnscaled)/100) *300;//*100rpm
+		double leftSideVoltage=((leftSideVoltageUnscaled)/100)*300;
 		for(MotorAndSide m: motorList){
 			if(m.jag!=null){
 				if(m.side.equals("RIGHT")){
-					
+
 				}else{
-					
+
 				}
 			}else if(m.talonSRX!=null){
-				System.out.println(m.getTalonSRX().isEnabled());
+				//TODO: change to generalize
+
 				if(m.side.equals("RIGHT")){
 					if(m.getTalonSRX().getID() == 4){
 						m.getTalonSRX().setPositionPID(rightSideVoltage);
 					}
 				}else{
+
 					if(m.getTalonSRX().getID() == 1){
 						m.getTalonSRX().setPositionPID(leftSideVoltage);
 					}
@@ -239,9 +246,9 @@ public class DriveSystem {
 					m.getJag().initVoltage();
 				}else if(m.talonSRX!=null){
 					m.getTalonSRX().initVoltage();
-					System.out.println(m.getTalonSRX().getMode());
 				}
 			}else if(currentDrive == driveModes.TANK_DRIVE_PID){
+				//TODO: change to generalize
 				if(m.jag!=null){
 					m.getJag().initSpeed();
 				}else if(m.talonSRX!=null){
@@ -256,5 +263,6 @@ public class DriveSystem {
 			}
 		}
 	}
+
 
 }

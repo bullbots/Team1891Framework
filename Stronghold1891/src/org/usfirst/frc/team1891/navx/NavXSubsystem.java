@@ -59,7 +59,7 @@ public class NavXSubsystem {
 	 /**
 	 * @param system the AHRS system being used.
 	 */
-	public NavXSubsystem(AHRS system){
+	public NavXSubsystem(){
 		try {
             nav = new AHRS(SPI.Port.kMXP);
         } catch (RuntimeException ex ) {

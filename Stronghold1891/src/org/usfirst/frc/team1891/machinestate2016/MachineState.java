@@ -4,8 +4,16 @@ import java.io.BufferedReader;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.LinkedList;
 import org.usfirst.frc.team1891.filewriter.LogWriter;
+import org.usfirst.frc.team1891.robot.Robot;
+import org.usfirst.frc.team1891.visionsystem.RobotCentering;
+
+import com.kauailabs.navx.frc.AHRS;
+
+import edu.wpi.first.wpilibj.SPI;
+import edu.wpi.first.wpilibj.Timer;
 
 /**
  * A class that controls the state of the machine.
@@ -15,10 +23,10 @@ import org.usfirst.frc.team1891.filewriter.LogWriter;
 public class MachineState{
 	//0. Find crossable defense
 	//1. Route path to defense
-	//2. Traverse to defense
-	//3. Cross defense
-	//4. Fine goal target
-	//5. Move to shooting position
+	//2. First leg of course
+	//3. Second leg of course
+	//4. Third leg of course.
+	//5. Find goal target
 	//6. Fire at target.
 	//7. Look for rebound and begin moving back.
 	private int fieldX=351;//inches
@@ -33,13 +41,32 @@ public class MachineState{
 	private LinkedList<Point> lineThroughShooting = new LinkedList<Point>();//A line of points through the shooting position
 	private LinkedList<Point> lineThroughStarting = new LinkedList<Point>();//A line of points through the starting position
 	private LinkedList<Point> driveLine = new LinkedList<Point>();//A line that connects the shooting line and the starting line.
+	private boolean pathFound=false;
+	private static Timer stateTimer = new Timer();
+	private double robotSpeed=55; //robot speed for the 2016 robot in inches per second.
+	private boolean turnRight=false;
+	private boolean turnLeft=false;
+	AHRS nav = new AHRS(SPI.Port.kMXP);
+	
+	private boolean stateTwoInitialized=false;
+	private double stateTwoRunTime=0;
+	
+	private boolean stateThreeInitialized=false;
+	private double stateThreeRunTime;
+	private boolean stateThreeDoneTurning=false;
+	private double stateThreeAngleToAchieve;
+	
+	private boolean stateFourInitialized=false;
+	private double stateFourRunTime;
+	private boolean stateFourDoneTurning=false;
+	private double stateFourAngleToAchieve;
 	/**
 	 *0. Find crossable defense, robot should be looking for closest possible defense.
 	 *1. Route path to defense, while the crossable defense can be found robot should be routing a path to the defense.
-	 *2. Traverse to defense, while there is still a viable path to the defense, move to the defense.
-	 *3. Cross defense, robot should be crossing the defense, at this point the state of the machine should not reduce.
-	 *4. Find goal target, robot should be looking for the nearest and easiest goal to shoot into.
-	 *5. Move to shooting position, while the robot can still find the target goal it should be moving into shooting position.
+	 *2. Runs the first leg of the course.
+	 *3. Runs the second leg of the course, if the robot is at a defese, slow down.
+	 *4. Runs the last leg of the course.
+	 *5. Find goal target, robot should be looking for the nearest and easiest goal to shoot into.
 	 *6. Fire at target, robot should fire the ball.
 	 *7. Look for rebound and begin moving back, at this point the robot should scan the field for a missed shot, if not it should return.
 	 * @return the number of the current state
@@ -58,21 +85,140 @@ public class MachineState{
 	public void update(){
 		switch(stateNum){
 		case 0://Finding crossable defense
+			stateNum++;
 			break;
 		case 1:// Routing to defense
+			if(pathFound){
+				stateNum++;
+			}
 			break;
-		case 2://Moving to defense
+		case 2://First leg of course
+			if(!stateTwoInitialized){
+				stateTimer.stop();
+				stateTimer.reset();
+				stateTwoRunTime=(lineThroughStarting.size()/robotSpeed);
+				stateTwoInitialized=true;
+				stateTimer.start();
+			}
+			if(stateTimer.get() >=stateTwoRunTime){
+				stateTimer.stop();
+				stateTimer.reset();
+				stateNum++;
+				stateTwoInitialized=false;
+			}
 			break;
-		case 3://Crossing defense
+		case 3://Second leg of course
+			if(!stateThreeInitialized){
+				stateTimer.stop();
+				stateTimer.reset();
+				stateThreeRunTime=(driveLine.size()/robotSpeed);
+				System.out.println("Runtime:"+stateThreeRunTime);
+				stateThreeInitialized=true;
+				turnThatRobotStateThree();
+				System.out.println("Time 3: "+stateThreeRunTime);
+			}
+			
+			
+			if(turnRight){
+				if(nav.getAngle()>=stateThreeAngleToAchieve){
+					turnRight=false;
+					stateTimer.start();
+				}
+			}
+			
+			if(turnLeft){
+				if(nav.getAngle()<=stateThreeAngleToAchieve){
+					turnLeft=false;
+					stateTimer.start();
+				}
+			}
+			if(stateThreeDoneTurning){
+				stateTimer.start();
+			}
+			
+			if(stateTimer.get() >=stateThreeRunTime){
+				stateTimer.stop();
+				stateTimer.reset();
+				stateNum++;
+				stateThreeInitialized=false;
+			}
+			
 			break;
-		case 4://Finding goal target.
+		case 4://Last leg of course.
+			if(!stateFourInitialized){
+				stateTimer.stop();
+				stateTimer.reset();
+				stateFourRunTime=(lineThroughShooting.size()/robotSpeed);
+				stateFourInitialized=true;
+				turnThatRobotStateFour();
+				System.out.println("Time 3: "+stateFourRunTime);
+			}
+			
+			
+			if(turnRight){
+				if(nav.getAngle()>=stateFourAngleToAchieve){
+					turnRight=false;
+					stateTimer.start();
+				}
+			}
+			
+			if(turnLeft){
+				if(nav.getAngle()<=stateFourAngleToAchieve){
+					turnLeft=false;
+					stateTimer.start();
+				}
+			}
+			if(stateFourDoneTurning){
+				stateTimer.start();
+			}
+			
+			if(stateTimer.get() >=stateFourRunTime){
+				stateTimer.stop();
+				stateTimer.reset();
+				stateNum++;
+				stateFourInitialized=false;
+			}
 			break;
-		case 5://Moving to shooting position
+		case 5://Finding goal target.
+			if(RobotCentering.isCentered){
+				stateNum++;
+			}
 			break;
 		case 6://Firing at target
+			if(Robot.autoBallFired){
+				stateNum++;
+			}
 			break;
 		case 7://End autonomous 
 			break;
+		}
+	}
+
+	private void turnThatRobotStateThree() {
+		double currentAngle=nav.getAngle();
+		//TODO: Make it so that the robot can actually turn left or right.
+		
+		if(startingPosition.getY()>driveLine.getLast().getY()){//Turn Left
+			stateThreeAngleToAchieve=currentAngle+90;
+			turnRight=true;
+		}else if(startingPosition.getY()<driveLine.getLast().getY()){
+			stateThreeAngleToAchieve=currentAngle-90;
+			turnLeft=true;
+		}
+	}
+	
+	private void turnThatRobotStateFour() {
+		double currentAngle=nav.getAngle();
+		turnRight=false;
+		turnLeft=false;
+		//TODO: Make it so that the robot can actually turn left or right.
+		
+		if(shootingPosition.getY()>driveLine.getLast().getY()){//Turn right
+			stateThreeAngleToAchieve=currentAngle-90;
+			turnRight=true;
+		}else if(shootingPosition.getY()<driveLine.getLast().getY()){
+			stateThreeAngleToAchieve=currentAngle+90;
+			turnLeft=true;
 		}
 	}
 
@@ -107,8 +253,6 @@ public class MachineState{
 	 * Efficiently finds the sortest path to the shooting position, to be run in initialization code.
 	 */
 	public void findShotestPath(){
-		long startTime = System.currentTimeMillis();
-		System.out.println("Start Time: "+(startTime/1000));
 		//W== wall, robot cannot go over and should not be within 12 cells of the R
 		//G== goal tower
 		//R==ramps
@@ -142,29 +286,30 @@ public class MachineState{
 				}
 			}
 		}
-		
+
 		//Create shooting line
 		for(int i=0; i<fieldY; i++){
 			lineThroughShooting.add(new Point(shootingPosition.getX(), i));
 		}
-		
+
 		//Create starting line
 		for(int i=0; i<fieldY; i++){
 			lineThroughStarting.add(new Point(startingPosition.getX(), i));
 		}
-		
+
 		//Create first connection line
 		for(int i=0; i<Math.abs((shootingPosition.getX()-startingPosition.getX())); i++){
 			driveLine.add(new Point(i+shootingPosition.getX(), fieldY-1));
 		}
-		
-		
+
+
 		//Finding the actual path
 		boolean pathFound=false;
 		while(pathFound!=true){
 			if(validatePath(driveLine)){
 				//Yay, good path
 				pathFound=true;
+				this.pathFound=true;
 				removeAllUselessPath();
 			}else{
 				//bad path, try again.
@@ -173,32 +318,28 @@ public class MachineState{
 				}
 			}
 		}
-		
-		
-		
-//		for(int i=0; i<fieldY; i++){
-//			for(int j=0; j<fieldX; j++){
-//				boolean path=false;
-//				for(int x=0; x<solutionPath.size();x++){
-//					if(solutionPath.get(x).getX() == j && solutionPath.get(x).getY() ==i &&field[j][i]!='S' &&field[j][i]!='M'){
-//						System.out.print('T');
-//						path=true;
-//					}
-//				}
-//				if(!path){
-//					System.out.print(field[j][i]);
-//				}
-//			}
-//			System.out.println();
-//		}
-		long endTime   = System.currentTimeMillis();
-		long totalTime = endTime - startTime;
-		System.out.println("Total runtime: "+totalTime);
+
+		//		for(int i=0; i<fieldX; i++){
+		//			for(int j =0; j<fieldY; j++){
+		//				boolean foundOne=false;
+		//				for(int x=0; x<solutionPath.size() &&!foundOne; x++){
+		//					if(solutionPath.get(x).getX() ==i && solutionPath.get(x).getY()==j){
+		//						foundOne=true;
+		//					}
+		//				}
+		//				if(foundOne){
+		//					System.out.print('T');
+		//				}else{
+		//					System.out.print(field[i][j]);
+		//				}
+		//			}
+		//			System.out.println();
+		//		}
 	}
-	
+
 	private void removeAllUselessPath() {
 		//Trim shooting line
-		
+
 		if(driveLine.getFirst().getY() > shootingPosition.getY()){
 			//If the drive line is above, north
 			for(int i=0; i< lineThroughShooting.size();i++){
@@ -225,7 +366,7 @@ public class MachineState{
 			//If they are on the same level
 			lineThroughShooting.clear();
 		}
-		
+
 		//Trim starting line
 		if(driveLine.getFirst().getY() > shootingPosition.getY()){
 			//If the drive line is above, north
@@ -253,24 +394,26 @@ public class MachineState{
 			//If they are on the same level
 			lineThroughShooting.clear();
 		}
-		
+
 		appendPathsToSolutionPath();
-		
+
 	}
 
 	private void appendPathsToSolutionPath() {
-		for(int i=0; i<lineThroughShooting.size();i++){
-			solutionPath.add(lineThroughShooting.get(i));
-		}
-		
+
 		for(int i=0; i<lineThroughStarting.size();i++){
 			solutionPath.add(lineThroughStarting.get(i));
 		}
-		
+
 		for(int i=0; i<driveLine.size();i++){
 			solutionPath.add(driveLine.get(i));
 		}
-		
+
+		for(int i=0; i<lineThroughShooting.size();i++){
+			solutionPath.add(lineThroughShooting.get(i));
+		}
+
+
 	}
 
 	private boolean validatePath(LinkedList<Point> path){
@@ -278,17 +421,38 @@ public class MachineState{
 			try{
 				for(int j=0; j<SHIFT_AMOUNT;j++){
 					if(field[(int) path.get(i).getX()][(int) (path.get(i).getY()+j)]=='W' ||
-						field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W'){
+							field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W'){
 						return false;
 					}
 				}
 			}catch(ArrayIndexOutOfBoundsException e){
-				System.out.println("test");
 				return false;
 			}
 		}
-		
+
 		return true;
-		
+
 	}
+
+	/**
+	 * @return true if the robot should turn right
+	 */
+	public boolean isTurnRight() {
+		return turnRight;
+	}
+
+	/**
+	 * @return true if the robot should turn left.
+	 */
+	public boolean isTurnLeft() {
+		return turnLeft;
+	}
+	
+	/**
+	 * @return the angle of the robot
+	 */
+	public double getAngle(){
+		return nav.getAngle();
+	}
+
 }

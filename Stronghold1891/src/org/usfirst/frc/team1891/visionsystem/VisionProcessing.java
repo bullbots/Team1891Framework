@@ -1,6 +1,9 @@
 package org.usfirst.frc.team1891.visionsystem;
 
 import java.io.IOException;
+import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
+import java.util.concurrent.LinkedBlockingQueue;
 
 import org.usfirst.frc.team1891.filewriter.LogWriter;
 
@@ -19,17 +22,18 @@ public class VisionProcessing
 	private final NetworkTable grip = NetworkTable.getTable("grip");
 	NetworkTable table;
 	LogWriter log;
+	LinkedList<Double> centerXAverage = new LinkedList<Double>();
 	/**
 	 * Instantiates the LogWriter and the NeworkTable into the environmet
 	 */
 	public VisionProcessing()
 	{
-		try {
-            Runtime.getRuntime().exec(GRIP_ARGS);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-		log = new LogWriter();
+//		try {
+//            Runtime.getRuntime().exec(GRIP_ARGS);
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//		log = new LogWriter();
 		table = NetworkTable.getTable("GRIP/targets");
 	}
 	/**
@@ -39,7 +43,6 @@ public class VisionProcessing
 	{
 		double[] Area = new double[0];
 		double[] areas = table.getNumberArray("area", Area);
-		System.out.print("Areas: ");
 		for(double area : areas)
 		{
 			return area;
@@ -55,7 +58,6 @@ public class VisionProcessing
 	{
 		double[] height = new double[0];
 		double [] heights = table.getNumberArray("height", height);
-		System.out.print("height: ");
 		for(double up : heights)
 		{
 			return up;
@@ -71,7 +73,6 @@ public class VisionProcessing
 	{
 		double[] solid = new double[0];
 		double[] solidity = table.getNumberArray("solidity", solid);
-		System.out.print("Solidity: ");
 		for(double solids : solidity)
 		{
 			return solids;
@@ -87,7 +88,6 @@ public class VisionProcessing
 	{
 		double[] yCenter = new double[0];
 		double[] yCenters = table.getNumberArray("centerY", yCenter);
-		System.out.print("centerY: ");
 		for(double centersY : yCenters)
 		{
 			return centersY;
@@ -103,7 +103,6 @@ public class VisionProcessing
 	{
 		double[] width = new double[0];
 		double[] widths = table.getNumberArray("width", width);
-		System.out.print("Width: ");
 		for(double wid : widths)
 		{
 			return wid;
@@ -116,11 +115,21 @@ public class VisionProcessing
 	 */
 	public double getCenterX()
 	{
-		double[] height = new double[0];
-		double [] heights = table.getNumberArray("height", height);
-		System.out.print("CenterX: ");
-		for(double up : heights)
+		double[] getCenterX = new double[0];
+		double avgTotal=0;
+		double [] centerX = table.getNumberArray("centerX", getCenterX);
+		for(double up : centerX)
 		{
+//			if(centerXAverage.size()<4){
+//				centerXAverage.offer(up);
+//			}else{
+//				centerXAverage.poll();
+//				centerXAverage.offer((Double)up);
+//			}
+//			for(int i=0; i<centerXAverage.size(); i++){
+//				avgTotal=centerXAverage.get(i)+avgTotal;
+//			}
+//			return (avgTotal/centerXAverage.size());
 			return up;
 		}
 		return 0;

@@ -2,7 +2,9 @@
 package org.usfirst.frc.team1891.motorcontroller;
 
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  * @author Egan Schafer
@@ -18,6 +20,7 @@ public class TalonSRX {
 	//Mode 4 is voltage mode
 	int codesPerRev;
 	CANTalon talon;
+	int test=0;
 
 	/**
 	 * @param talon 
@@ -97,7 +100,7 @@ public class TalonSRX {
 	 */
 	public void setPositionPID(double postion)
 	{
-		talon.set(postion);;
+		talon.set(postion);
 	}
 	
 	/**
@@ -145,12 +148,21 @@ public class TalonSRX {
 	 */
 	public void initSpeed()
 	{
-		talon.changeControlMode(CANTalon.TalonControlMode.Speed);
-		talon.setFeedbackDevice(CANTalon.FeedbackDevice.QuadEncoder);
-		talon.setPID(1.0, 0.0, 0.0);
-		talon.configEncoderCodesPerRev(codesPerRev);
-		talon.enable();
+		talon.setFeedbackDevice(FeedbackDevice.CtreMagEncoder_Relative);
+		talon.reverseSensor(false);
+		/* set the peak and nominal outputs, 12V means full */
+		talon.configNominalOutputVoltage(+0.0f, -0.0f);
+		talon.configPeakOutputVoltage(+12.0f, -12.0f);
+		/* set closed loop gains in slot0 */
+		talon.setProfile(0);
+		talon.setF(0.3567);
+		talon.setP(0.04825);
+		talon.setI(0); 
+		talon.setD(0);
+		talon.changeControlMode(TalonControlMode.Speed);
 	}
+	
+	
 	
 	/**
 	 * Sets the speed for the motor to move at
@@ -158,12 +170,16 @@ public class TalonSRX {
 	 */
 	public void setSpeed(double speed)
 	{
+		if(test++ <=10){
+			System.out.println("Talon Velocity: "+talon.getAnalogInVelocity());
+			test=0;
+		}
 		talon.set(speed);
 	}
 	
 	public double getSpeed()
 	{
-		return talon.getSpeed();
+		return talon.get();
 	}
 	
 	public TalonControlMode getMode(){
@@ -185,5 +201,9 @@ public class TalonSRX {
 	
 	public int getID(){
 		return talon.getDeviceID();
+	}
+	
+	public double getCurrentVelocity(){
+		return talon.getAnalogInVelocity();
 	}
 }

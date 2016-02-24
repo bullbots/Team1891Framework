@@ -7,6 +7,7 @@ import edu.wpi.first.wpilibj.Compressor;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SPI;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -16,10 +17,16 @@ import org.usfirst.frc.team1891.drivesystem.*;
 import org.usfirst.frc.team1891.drivesystem.DriveSystem.driveModes;
 import org.usfirst.frc.team1891.filewriter.LogWriter;
 import org.usfirst.frc.team1891.joysticks.*;
+import org.usfirst.frc.team1891.machinestate2016.InvalidStateException;
 import org.usfirst.frc.team1891.machinestate2016.MachineState;
+import org.usfirst.frc.team1891.machinestate2016.Point;
 import org.usfirst.frc.team1891.motorcontroller.TalonSRX;
+import org.usfirst.frc.team1891.navx.NavXSubsystem;
 import org.usfirst.frc.team1891.pneumatics.PnController;
 import org.usfirst.frc.team1891.pneumatics.SolenoidBoth;
+import org.usfirst.frc.team1891.visionsystem.RobotCentering;
+
+import com.kauailabs.navx.frc.AHRS;
 
 
 /**
@@ -30,6 +37,17 @@ import org.usfirst.frc.team1891.pneumatics.SolenoidBoth;
  * directory.
  */
 public class StrongholdRobot_2016 extends IterativeRobot {
+
+//	MachineState stateMachine;
+//	LogWriter log;
+//	JoystickControl joy;
+//	DriveSystem drive;
+//	LinkedList<MotorAndSide> motors;
+//	TalonSRX ballCollect;
+//	TalonSRX rearShooter;
+	RobotCentering centerRobo;
+//	SmartDashboard dash;
+	
 	Encoder en;
 	CANJaguar jag;
 	MachineState stateMachine;
@@ -37,7 +55,6 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	JoystickControl joy;
 	DriveSystem drive;
 	LinkedList<MotorAndSide> motors;
-	SmartDashboard test;
 	TalonSRX ballCollect;
 	TalonSRX rearShooter;
 	PnController pn;
@@ -45,12 +62,27 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	LinkedList<Compressor> compressor;
 	boolean expelBallTimerStart=false;
 	Timer expelBallTimer;
-
+	int testVal =0;
+	double ballFirst =5.0;
+	double ballLast = 5.0;
+	int test =0;
+	MachineState autoMachine;
+	int autoState=0;
+	boolean autoStateThreeQuickStop=false;
+	boolean autoStateFourQuickStop=false;
+	/**
+	 * Boolean to tell if the ball has been fired or not.
+	 */
+	public static boolean autoBallFired=false;
 	/**
 	 * This function is run when the robot is first started up and should be
 	 * used for any initialization code.
 	 */
 	public void robotInit() {
+		
+		
+		
+		
 		log = new LogWriter();
 		log.appendMessageToLog("Robot init started");
 		joy = new JoystickControl();
@@ -76,9 +108,8 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		pn = new PnController(solenoids, compressor);
 		pn.turnAllCompressorsOn();
 		expelBallTimer= new Timer();
-//		test=new SmartDashboard();
-//		vp = new OpenCVProcessing();
-//		stateMachine= new MachineState();
+		centerRobo = new RobotCentering(160, 320);
+		
 	}
 
 
@@ -98,21 +129,105 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 
 		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
 		drive.enableAll();
+
+		autoMachine = new MachineState();
+		autoMachine.initiateMachine();
 	}
 	/**
-	 * This function is called periodically during autonomous
+	 * This function
+	 *  is called periodically during autonomous
 	 */
 	public void autonomousPeriodic() {
-		drive.drive(null);
+//		drive.drive(new JoyVector(-0.15,-1,0,0) ,autoMachine.getSolutionPath());
+		//Centering code;
+//		JoyVector tmp = centerRobo.centerRobot();
+//		if(tmp!=null){
+//			drive.drive(tmp);
+//		}
+		
+		autoMachine.update();
+		try {
+			autoState=autoMachine.getState();
+		} catch (InvalidStateException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		
+		switch(autoState){
+			case 0://Finding crossable defense
+				System.out.println("State 0");
+				break;
+			case 1:// Routing to defense
+				System.out.println("State 1");
+				autoMachine.findShotestPath();
+				break;
+			case 2://Moving to defense
+				System.out.println("State 2");
+				drive.drive(new JoyVector(-0.15,-1,0,0));//Go forwards
+				break;
+			case 3://Crossing defense
+				if(autoMachine.isTurnLeft()){
+					drive.drive(new JoyVector(-0.3,0,0,0));
+				}else if(autoMachine.isTurnRight()){
+					drive.drive(new JoyVector(0.3,0,0,0));
+				}else{
+					if(!autoStateThreeQuickStop){//Do a quick stop to stop the turning.
+						drive.drive(new JoyVector(0,0,0,0));
+						Timer.delay(0.1);
+						autoStateThreeQuickStop=true;
+					}
+					drive.drive(new JoyVector(-0.15,-1,0,0));
+				}
+				System.out.println("State 3");
+				break;
+			case 4://Moving to shooting postion
+				System.out.println("State 4");
+				drive.drive(new JoyVector(0,0,0,0));
+				if(autoMachine.isTurnLeft()){
+					drive.drive(new JoyVector(-0.3,0,0,0));
+				}else if(autoMachine.isTurnRight()){
+					drive.drive(new JoyVector(0.3,0,0,0));
+				}else{
+					if(!autoStateFourQuickStop){//Do a quick stop to stop the turning.
+						drive.drive(new JoyVector(0,0,0,0));
+						Timer.delay(0.1);
+						autoStateFourQuickStop=true;
+					}
+					drive.drive(new JoyVector(-0.15,-1,0,0));
+				}
+				break;
+				
+			case 5://Finding goal target
+				System.out.println("State 5");
+				JoyVector tmp = centerRobo.centerRobot();
+				if(tmp!=null){
+					drive.drive(tmp);
+				}
+				break;
+			case 6://Firing at target
+				System.out.println("State 6");
+				//Firing code
+				break;
+			case 7://End autonomous 
+				System.out.println("State 7");
+				//#Dance
+				break;
+		}
+		
 	}
+	
+	
 	public void teleopInit(){
 		System.out.println("In teleop init");
-		drive.setDriveSystem(driveModes.TANK_DRIVE);
+		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
 		drive.enableAll();
+		autoMachine = new MachineState();
 	}
+	
 	
 	
 	/**
+	 * 
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
@@ -120,6 +235,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		if(joy.button(3)){//Collect ball
 			ballCollect.setVoltage(12);
 			rearShooter.setVoltage(2);
+			
 			pn.extend(0);
 			pn.retract(1);
 		}else{//Do nothing
@@ -135,15 +251,15 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		
 		if(joy.button(2)){
 
-			ballCollect.setVoltage(12);
-			rearShooter.setVoltage(-12);
-		}
-		
+			ballCollect.setVoltage(5);
+			rearShooter.setVoltage(-10);
+		}	
 	}
 
 	
 	public void testInit(){
-		
+		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
+		drive.enableAll();
 	}
 	
 	/**
@@ -151,8 +267,6 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 */
 	@SuppressWarnings("static-access")
 	public void testPeriodic() {
-		JoyVector tmp =joy.getData();
-		test.putNumber("Joystick X", tmp.getX_comp());
-		test.putNumber("Joystick Y", tmp.getY_comp());
+		drive.drive(joy.getData());		
 	}
 }
