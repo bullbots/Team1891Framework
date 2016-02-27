@@ -114,32 +114,32 @@ void loop() {
 //methods
 
 void countdownRed(double s){
-  for(int a=0; a<30; a++){
+  for(int a=0; a<22; a++){
     strip.setPixelColor(a,strip.Color(120,15,7)); 
   }
   if(s>maxTime)maxTime = s;
-  double ratio = (s/maxTime)*30;
+  double ratio = (s/maxTime)*22;
   for(int a=0; a<ratio; a++){
-   strip.setPixelColor(29-a,0);
+   strip.setPixelColor(21-a,0);
   }
   strip.show();
 }
 
 void countdownBlue(double s){
-  for(int a=0; a<30; a++){
+  for(int a=0; a<22; a++){
     strip.setPixelColor(a,strip.Color(0,50,120)); 
   }
   if(s>maxTime)maxTime = s;
-  double ratio = (s/maxTime)*30;
+  double ratio = (s/maxTime)*22;
   for(int a=0; a<ratio; a++){
-   strip.setPixelColor(29-a,0);
+   strip.setPixelColor(21-a,0);
   }
   strip.show();
   if(ratio <.01)maxTime =0;
 }
 
 void driveSpeedRed(double s){
-  double b = abs(s)*30;
+  double b = abs(s)*22;
   if(s>0){
      for(int a = 0; a<b; a++){
        strip.setPixelColor(a,strip.Color(120, 0, 60-b*2));
@@ -150,7 +150,7 @@ void driveSpeedRed(double s){
   }
   if(s<0){
      for(int a = 0; a<b; a++){
-       strip.setPixelColor(a,strip.Color(120, 30-b, 0));
+       strip.setPixelColor(a,strip.Color(120, 22-b, 0));
      }
      for(int a = b-1; a<b; a++){
        strip.setPixelColor(a,strip.Color(120, 60, 0));
@@ -160,7 +160,7 @@ void driveSpeedRed(double s){
 }
 
 void driveSpeedBlue(double s){
-  double b = abs(s)*30;
+  double b = abs(s)*22;
   if(s>0){
      for(int a = 0; a<b; a++){
        strip.setPixelColor(a,strip.Color(60-b*2, 0, 120));
@@ -283,7 +283,7 @@ void rainbowTetris() {
       delay(20);
     }
   }
-  for (int i=0; i<=12; i++) {
+  for (int i=0; i<=10; i++) {
     for (int x=i; x>=0; x--) {
       strip.setPixelColor(x, rainbow(i));
       strip.setPixelColor(x+1, strip.Color(0,0,0));
