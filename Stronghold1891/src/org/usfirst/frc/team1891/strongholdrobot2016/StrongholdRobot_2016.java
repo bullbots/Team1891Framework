@@ -4,6 +4,7 @@ package org.usfirst.frc.team1891.strongholdrobot2016;
 import edu.wpi.first.wpilibj.CANJaguar;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -13,6 +14,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 import java.util.LinkedList;
 
+import org.usfirst.frc.team1891.arduino.Arduino;
 import org.usfirst.frc.team1891.drivesystem.*;
 import org.usfirst.frc.team1891.drivesystem.DriveSystem.driveModes;
 import org.usfirst.frc.team1891.filewriter.LogWriter;
@@ -57,6 +59,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	LinkedList<MotorAndSide> motors;
 	TalonSRX ballCollect;
 	TalonSRX rearShooter;
+	TalonSRX elbow;
 	PnController pn;
 	LinkedList<SolenoidBoth> solenoids;
 	LinkedList<Compressor> compressor;
@@ -70,6 +73,8 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	int autoState=0;
 	boolean autoStateThreeQuickStop=false;
 	boolean autoStateFourQuickStop=false;
+	Timer testFireTime;
+	Arduino lights;
 	/**
 	 * Boolean to tell if the ball has been fired or not.
 	 */
@@ -106,10 +111,13 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		compressor  = new LinkedList<Compressor>();
 		compressor.add(new Compressor(0));
 		pn = new PnController(solenoids, compressor);
-		pn.turnAllCompressorsOn();
+//		pn.turnAllCompressorsOn();
 		expelBallTimer= new Timer();
 		centerRobo = new RobotCentering(160, 320);
-		
+		testFireTime= new Timer();
+		lights = new Arduino(4);
+		elbow = new TalonSRX(new CANTalon(7));
+		elbow.initVoltage();
 	}
 
 
@@ -137,82 +145,75 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 * This function
 	 *  is called periodically during autonomous
 	 */
-	public void autonomousPeriodic() {
-//		drive.drive(new JoyVector(-0.15,-1,0,0) ,autoMachine.getSolutionPath());
-		//Centering code;
-//		JoyVector tmp = centerRobo.centerRobot();
-//		if(tmp!=null){
-//			drive.drive(tmp);
+	public void autonomousPeriodic() {	
+//		autoMachine.update();
+//		try {
+//			autoState=autoMachine.getState();
+//		} catch (InvalidStateException e) {
+//			// TODO Auto-generated catch block
+//			e.printStackTrace();
 //		}
-		
-		autoMachine.update();
-		try {
-			autoState=autoMachine.getState();
-		} catch (InvalidStateException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		switch(autoState){
-			case 0://Finding crossable defense
-				System.out.println("State 0");
-				break;
-			case 1:// Routing to defense
-				System.out.println("State 1");
-				autoMachine.findShotestPath();
-				break;
-			case 2://Moving to defense
-				System.out.println("State 2");
-				drive.drive(new JoyVector(-0.15,-1,0,0));//Go forwards
-				break;
-			case 3://Crossing defense
-				if(autoMachine.isTurnLeft()){
-					drive.drive(new JoyVector(-0.3,0,0,0));
-				}else if(autoMachine.isTurnRight()){
-					drive.drive(new JoyVector(0.3,0,0,0));
-				}else{
-					if(!autoStateThreeQuickStop){//Do a quick stop to stop the turning.
-						drive.drive(new JoyVector(0,0,0,0));
-						Timer.delay(0.1);
-						autoStateThreeQuickStop=true;
-					}
-					drive.drive(new JoyVector(-0.15,-1,0,0));
-				}
-				System.out.println("State 3");
-				break;
-			case 4://Moving to shooting postion
-				System.out.println("State 4");
-				drive.drive(new JoyVector(0,0,0,0));
-				if(autoMachine.isTurnLeft()){
-					drive.drive(new JoyVector(-0.3,0,0,0));
-				}else if(autoMachine.isTurnRight()){
-					drive.drive(new JoyVector(0.3,0,0,0));
-				}else{
-					if(!autoStateFourQuickStop){//Do a quick stop to stop the turning.
-						drive.drive(new JoyVector(0,0,0,0));
-						Timer.delay(0.1);
-						autoStateFourQuickStop=true;
-					}
-					drive.drive(new JoyVector(-0.15,-1,0,0));
-				}
-				break;
-				
-			case 5://Finding goal target
-				System.out.println("State 5");
-				JoyVector tmp = centerRobo.centerRobot();
-				if(tmp!=null){
-					drive.drive(tmp);
-				}
-				break;
-			case 6://Firing at target
-				System.out.println("State 6");
-				//Firing code
-				break;
-			case 7://End autonomous 
-				System.out.println("State 7");
-				//#Dance
-				break;
-		}
+//		
+//		switch(autoState){
+//			case 0://Finding crossable defense
+//				System.out.println("State 0");
+//				break;
+//			case 1:// Routing to defense
+//				System.out.println("State 1");
+//				autoMachine.findShotestPath();
+//				break;
+//			case 2://Moving to defense
+//				System.out.println("State 2");
+//				drive.drive(new JoyVector(-0.15,-1,0,0));//Go forwards
+//				break;
+//			case 3://Crossing defense
+//				if(autoMachine.isTurnLeft()){
+//					drive.drive(new JoyVector(-0.3,0,0,0));
+//				}else if(autoMachine.isTurnRight()){
+//					drive.drive(new JoyVector(0.3,0,0,0));
+//				}else{
+//					if(!autoStateThreeQuickStop){//Do a quick stop to stop the turning.
+//						drive.drive(new JoyVector(0,0,0,0));
+//						Timer.delay(0.1);
+//						autoStateThreeQuickStop=true;
+//					}
+//					drive.drive(new JoyVector(-0.15,-1,0,0));
+//				}
+//				System.out.println("State 3");
+//				break;
+//			case 4://Moving to shooting postion
+//				System.out.println("State 4");
+//				drive.drive(new JoyVector(0,0,0,0));
+//				if(autoMachine.isTurnLeft()){
+//					drive.drive(new JoyVector(-0.3,0,0,0));
+//				}else if(autoMachine.isTurnRight()){
+//					drive.drive(new JoyVector(0.3,0,0,0));
+//				}else{
+//					if(!autoStateFourQuickStop){//Do a quick stop to stop the turning.
+//						drive.drive(new JoyVector(0,0,0,0));
+//						Timer.delay(0.1);
+//						autoStateFourQuickStop=true;
+//					}
+//					drive.drive(new JoyVector(-0.15,-1,0,0));
+//				}
+//				break;
+//				
+//			case 5://Finding goal target
+//				System.out.println("State 5");
+//				JoyVector tmp = centerRobo.centerRobot();
+//				if(tmp!=null){
+//					drive.drive(tmp);
+//				}
+//				break;
+//			case 6://Firing at target
+//				System.out.println("State 6");
+//				//Firing code
+//				break;
+//			case 7://End autonomous 
+//				System.out.println("State 7");
+//				//#Dance
+//				break;
+//		}
 		
 	}
 	
@@ -222,6 +223,13 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
 		drive.enableAll();
 		autoMachine = new MachineState();
+
+		if (DriverStation.getInstance().getAlliance() == DriverStation.Alliance.Blue){
+			lights.writeTeam(0);
+		}
+		else{
+			lights.writeTeam(1);
+		}
 	}
 	
 	
@@ -237,23 +245,42 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 			rearShooter.setVoltage(2);
 			
 			pn.extend(0);
-			pn.retract(1);
 		}else{//Do nothing
 			pn.retract(0);
-			pn.retract(1);
 			ballCollect.setVoltage(0);
 			rearShooter.setVoltage(0);
 		}
 		
 		if(joy.button(1)){//Shoot ball
 				pn.extend(1);
+				testFireTime.start();
+		}else if(testFireTime.get()>1){
+			pn.retract(1);
+			testFireTime.stop();
+			testFireTime.reset();
 		}
 		
 		if(joy.button(2)){
 
-			ballCollect.setVoltage(5);
-			rearShooter.setVoltage(-10);
-		}	
+			ballCollect.setVoltage(2);
+			rearShooter.setVoltage(-3);
+		}
+		
+		if (DriverStation.getInstance().getBatteryVoltage() < 12){
+			lights.lowBattery();
+		}
+		if (elbow.getFeedbackValuePosition() > -588)
+		{
+			elbow.setVoltage(-5);
+		}
+		else if (elbow.getFeedbackValuePosition() < - 588 && elbow.getFeedbackValuePosition() > -700)
+		{
+			elbow.setVoltage(-3.3);
+		}
+		else
+		{
+			elbow.setVoltage(2);
+		}
 	}
 
 	
