@@ -237,9 +237,13 @@ public class DriveSystem {
 	}
 
 	/**
-	 * Enables all the motors in their correct mode.
+	 * Enables all the motors in their correct mode. If you are driving in PID mode then master and slaves will also be set.
+	 * If you set motors in PID mode, be sure to set the correct motors in master mode(the ones that have the ncoder on them should be 
+	 * set to master mode), if this is not done correctly, the drive system will fail.
 	 */
 	public void enableAll(){
+		int masterRight = 0;
+		int masterLeft = 0;
 		for(MotorAndSide m : motorList){
 			if(currentDrive == driveModes.TANK_DRIVE){
 				if(m.jag!=null){
@@ -252,12 +256,19 @@ public class DriveSystem {
 				if(m.jag!=null){
 					m.getJag().initSpeed();
 				}else if(m.talonSRX!=null){
-					if(m.getTalonSRX().getID()==3){
-						m.getTalonSRX().followMeMode(4);
-					}else if(m.getTalonSRX().getID()==2){
-						m.getTalonSRX().followMeMode(1);
-					}else{
+					if(m.isMaster){
 						m.getTalonSRX().initSpeed();
+						if(m.getSide()=="RIGHT"){
+							masterRight=m.getTalonSRX().getID();
+						}else if(m.getSide()=="LEFT"){
+							masterLeft=m.getTalonSRX().getID();
+						}
+					}else{
+						if(m.getSide()=="RIGHT"){
+							m.getTalonSRX().followMeMode(masterRight);
+						}else if(m.getSide()=="LEFT"){
+							m.getTalonSRX().followMeMode(masterLeft);
+						}
 					}
 				}
 			}

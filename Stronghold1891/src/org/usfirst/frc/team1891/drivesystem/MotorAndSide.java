@@ -14,17 +14,20 @@ public class MotorAndSide {
 	Jaguar jag= null;
 	TalonSRX talonSRX = null;
 	String side;
+	boolean isMaster;
 	/**
 	 * Constructor for MotorAndSide, instatiates the motor with the information about what side of the robot
 	 * it is on. Use this constructor if the drive system consists of jag motors.
 	 * @param jag the jag object 
 	 * @param side of the robot the jag is on. value of side should either be "RIGHT" or "LEFT" else an error will be thrown.
+	 * @param isMaster true if the motor is a master motor, false otherwise.
 	 * @throws InvalidSideException thrown when the side of the motor is invalid.
 	 */
-	public MotorAndSide(Jaguar jag, String side) throws InvalidSideException{
+	public MotorAndSide(Jaguar jag, String side, boolean isMaster) throws InvalidSideException{
 		if(!side.equals("RIGHT") && !side.equals("LEFT")) {throw new InvalidSideException();}
 		this.jag=jag;
 		this.side=side;
+		this.isMaster=isMaster;
 	}
 	
 	/**
@@ -32,12 +35,14 @@ public class MotorAndSide {
 	 * it is on. Use this constructor if the drive system consists of TalonSRX motors.
 	 * @param talon the TalonSRX motor object
 	 * @param side side of the robot the TalonSRX is on. value of side should either be "RIGHT" or "LEFT" else an error will be thrown.
+	 * @param isMaster true if the motor is a master motor, false otherwise.
 	 * @throws InvalidSideException thrown when the side of the motor is invalid.
 	 */
-	public MotorAndSide(TalonSRX talon, String side) throws InvalidSideException{
+	public MotorAndSide(TalonSRX talon, String side, boolean isMaster) throws InvalidSideException{
 		if(!side.equals("RIGHT") && !side.equals("LEFT")) {throw new InvalidSideException();}
 		this.talonSRX=talon;
 		this.side=side;
+		this.isMaster=isMaster;
 	}
 
 	/**
@@ -59,5 +64,12 @@ public class MotorAndSide {
 	 */
 	public String getSide() {
 		return side;
+	}
+
+	/**
+	 * @return true if the motor is a master motor and other motors should follow it. False if it should follow a master motor on its same side.
+	 */
+	public boolean isMaster() {
+		return isMaster;
 	}
 }

@@ -94,10 +94,10 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		joy.init(new Joystick(0));
 		motors = new LinkedList<MotorAndSide>();
 		try {
-			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(4)), "RIGHT"));//Has encoder
-			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(3)), "RIGHT"));
-			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(1)), "LEFT"));//Has encoder
-			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(2)), "LEFT"));
+			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(4)), "RIGHT", true));//Has encoder
+			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(3)), "RIGHT", false));
+			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(1)), "LEFT",true));//Has encoder
+			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(2)), "LEFT", true));
 		} catch (InvalidSideException e) {
 			log.appendMessageToLog("Invalid side was initialized");
 			e.printStackTrace();
