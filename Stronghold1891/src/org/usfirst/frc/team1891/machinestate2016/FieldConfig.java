@@ -8,6 +8,8 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Scanner;
 
+import javax.swing.text.AttributeSet.CharacterAttribute;
+
 import edu.wpi.first.wpilibj.smartdashboard.*;;
 
 /**
@@ -36,21 +38,25 @@ public class FieldConfig {
 	{
 //		fl = new File("/home/lvuser/fieldcsv/field.csv");
 		fl = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/field.csv");
+		File fl2 = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/fieldWrite.csv");
 		try {
-			write = new FileWriter(fl);
+			write = new FileWriter(fl2);
 		} catch (IOException e1) {
 			// TODO Auto-generated catch block
 			e1.printStackTrace();
+			System.exit(1);
 		}
 		try {
 			read = new BufferedReader(new FileReader(fl));
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
 		field = new char[fieldX][fieldY];
 		try {
-			for(int i=0;((line = read.readLine())) != null ;i++ ) {
+			for(int i=0;i<fieldY;i++ ) {
+				line=read.readLine();
 				line=line.trim();
 				line=line.replaceAll("	", "");
 				line=line.replace(",", "");
@@ -58,13 +64,16 @@ public class FieldConfig {
 				for(int j=0; j<fieldX ;j++){
 					field[j][i]=charset[j];
 				}
+				System.out.println(i);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.exit(1);
 		}
 		found = false;
-//		dash = new SmartDashboard();
+		SmartDashboard.getNumber("robotX");
+		SmartDashboard.getNumber("robotY");
 	}
 
 	/**
@@ -79,44 +88,47 @@ public class FieldConfig {
 			if (field[x][y] == 'M')
 			{
 				found = true;
-				System.out.println("success");
 			}
 			if (found == false)
 			{
 				x++;
 				if (x > 350)
 				{
-					x = 1;
+					x = 0;
 					y++;
 				}
-				System.out.println("fail");
 			}
 			if (y > 318)
 			{
-				System.out.println("none found");
+				System.out.println("no previous marker found found");
 				found = true;
 			}
 		}
 		
-//		int offset = x + y*351;
-//		try {
-//			write.write("M", offset, 1);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		field[x][y] = 'F';
 		
-//		previousX = line.indexOf("M");
-//		double xMeasure = dash.getNumber("dkdj");
-//		double yMeasure = dash.getNumber("s");
-//		double x = 250 + xMeasure;
-//		double y = yMeasure;
-//		int offset = (int) (x + y*351);
-//		try {
-//			file.write("M", offset, 1);
-//		} catch (IOException e) {
-//			// TODO Auto-generated catch block
-//			e.printStackTrace();
-//		}
+		double xMeasure = 250 + SmartDashboard.getNumber("robotX");
+		double yMeasure = SmartDashboard.getNumber("robotY");
+//		double xMeasure = 300;
+//		double yMeasure = 318;
+		
+		field[(int) xMeasure][(int) yMeasure] = 'M';
+		
+		try {
+			for (int t=0; t < fieldY; t++)
+			{
+				for (int l=0; l < fieldX; l++)
+				{
+					write.write(field[l][t]);
+					write.write(',');
+				}
+				write.write(System.getProperty("line.separator"));
+			}
+			write.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			System.exit(1);
+		}
 	}
 }
