@@ -223,12 +223,12 @@ public class DriveSystem {
 				//TODO: change to generalize
 
 				if(m.side.equals("RIGHT")){
-					if(m.getTalonSRX().getID() == 4){
+					if(m.isMaster()){
 						m.getTalonSRX().setPositionPID(rightSideVoltage);
 					}
 				}else{
 
-					if(m.getTalonSRX().getID() == 1){
+					if(m.isMaster()){
 						m.getTalonSRX().setPositionPID(leftSideVoltage);
 					}
 				}
@@ -239,7 +239,8 @@ public class DriveSystem {
 	/**
 	 * Enables all the motors in their correct mode. If you are driving in PID mode then master and slaves will also be set.
 	 * If you set motors in PID mode, be sure to set the correct motors in master mode(the ones that have the ncoder on them should be 
-	 * set to master mode), if this is not done correctly, the drive system will fail.
+	 * set to master mode), if this is not done correctly, the drive system will fail. Master motors MUST be instantiated and added
+	 * to the list prior to their slaves.
 	 */
 	public void enableAll(){
 		int masterRight = 0;
@@ -261,12 +262,15 @@ public class DriveSystem {
 						if(m.getSide()=="RIGHT"){
 							masterRight=m.getTalonSRX().getID();
 						}else if(m.getSide()=="LEFT"){
+							System.out.println("Init"+m.getTalonSRX().getID());
 							masterLeft=m.getTalonSRX().getID();
 						}
 					}else{
 						if(m.getSide()=="RIGHT"){
 							m.getTalonSRX().followMeMode(masterRight);
 						}else if(m.getSide()=="LEFT"){
+							System.out.println(masterLeft);
+							System.out.println(m.getTalonSRX().getID());
 							m.getTalonSRX().followMeMode(masterLeft);
 						}
 					}
@@ -275,5 +279,19 @@ public class DriveSystem {
 		}
 	}
 
+
+	/**
+	 * Enables break mode on all the current motors.
+	 */
+	public void breakAll(){
+		for(MotorAndSide m : motorList){
+			if(m.jag!=null){
+				m.getJag().initSpeed();
+			}else if(m.talonSRX!=null){
+				m.getTalonSRX().setBreak();
+			}
+
+		}
+	}
 
 }

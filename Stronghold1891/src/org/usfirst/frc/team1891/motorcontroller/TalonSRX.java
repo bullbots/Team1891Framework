@@ -212,4 +212,8 @@ public class TalonSRX {
 	{
 		return talon.getEncPosition();
 	}
+	
+	public void setBreak(){
+		talon.enableBrakeMode(true);
+	}
 }
