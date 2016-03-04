@@ -242,6 +242,29 @@ public class JoystickControl {
 		}
 		return on[i];
 	}
+	
+	/**
+	 * Only gives true once every button press and release
+	 * @param i button to be read from
+	 * @return if the button is pushed
+	 */
+	public boolean buttonControlled(int i)
+	{
+		if (button(i) && !press[i])
+		{
+			press[i] = true;
+			return true;
+		}
+		else if (!button(i) && press[i])
+		{
+			press[i] = false;
+			return false;
+		}
+		else
+		{
+			return false;
+		}
+	}
 
 	/**
 	 * sets the joystick rumble pack

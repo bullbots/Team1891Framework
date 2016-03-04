@@ -36,16 +36,9 @@ public class FieldConfig {
 	 */
 	public FieldConfig()
 	{
-//		fl = new File("/home/lvuser/fieldcsv/field.csv");
-		fl = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/field.csv");
-		File fl2 = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/fieldWrite.csv");
-		try {
-			write = new FileWriter(fl2);
-		} catch (IOException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-			System.exit(1);
-		}
+		fl = new File("/home/lvuser/fieldcsv/field.csv");
+//		fl = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/field.csv");
+//		File fl2 = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/fieldWrite.csv");
 		try {
 			read = new BufferedReader(new FileReader(fl));
 		} catch (FileNotFoundException e) {
@@ -72,8 +65,8 @@ public class FieldConfig {
 			System.exit(1);
 		}
 		found = false;
-		SmartDashboard.getNumber("robotX");
-		SmartDashboard.getNumber("robotY");
+		SmartDashboard.putNumber("robotX",0);
+		SmartDashboard.putNumber("robotY",0);
 	}
 
 	/**
@@ -113,6 +106,14 @@ public class FieldConfig {
 //		double yMeasure = 318;
 		
 		field[(int) xMeasure][(int) yMeasure] = 'M';
+		
+		try {
+			write = new FileWriter(fl);
+		} catch (IOException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+			System.exit(1);
+		}
 		
 		try {
 			for (int t=0; t < fieldY; t++)
