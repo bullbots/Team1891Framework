@@ -91,7 +91,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		log = new LogWriter();
 		log.appendMessageToLog("Robot init started");
 		joy = new JoystickControl();
-		joy.init(new Joystick(0));
+		joy.init(new Joystick(0), new Joystick(1));
 		motors = new LinkedList<MotorAndSide>();
 		try {
 			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(4)), "RIGHT", true));//Has encoder
