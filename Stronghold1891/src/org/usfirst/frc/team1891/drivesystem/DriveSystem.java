@@ -262,15 +262,12 @@ public class DriveSystem {
 						if(m.getSide()=="RIGHT"){
 							masterRight=m.getTalonSRX().getID();
 						}else if(m.getSide()=="LEFT"){
-							System.out.println("Init"+m.getTalonSRX().getID());
 							masterLeft=m.getTalonSRX().getID();
 						}
 					}else{
 						if(m.getSide()=="RIGHT"){
 							m.getTalonSRX().followMeMode(masterRight);
 						}else if(m.getSide()=="LEFT"){
-							System.out.println(masterLeft);
-							System.out.println(m.getTalonSRX().getID());
 							m.getTalonSRX().followMeMode(masterLeft);
 						}
 					}
