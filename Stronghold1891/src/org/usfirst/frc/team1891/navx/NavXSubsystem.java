@@ -88,7 +88,6 @@ public class NavXSubsystem {
 		remove(Yaw);
 		yaw = ave(Yaw.toArray(new Float[Yaw.size()]));
 		SmartDashboard.putNumber(   "IMU_Yaw",              yaw);
-		System.out.println(Yaw.contains(0));
 		
 		add(Angle, nav.getAngle());
 		remove(Angle);
@@ -203,22 +202,33 @@ public class NavXSubsystem {
 		return average;
 	}
 	
-	public void add(ArrayBlockingQueue array, float arrayData){
-		if(array.size() < aveLength+1){
-			array.add(arrayData);
+	/**
+	 * @param queue is the queue you wish to pass,
+	 * @param arrayData is the data you want to add
+	 */
+	public void add(ArrayBlockingQueue<Float> queue, float arrayData){
+		if(queue.size() < aveLength+1){
+			queue.add(arrayData);
 		}
 	}
 	
-	public void add(ArrayBlockingQueue array, double arrayData){
-		//if(array.size() < aveLength){
-			array.add(arrayData);
-		//}
+	/**
+	 * @param queue is the queue you wish to pass,
+	 * @param arrayData is the data you want to add
+	 */
+	public void add(ArrayBlockingQueue<Double> queue, double arrayData){
+		if(queue.size() < aveLength+1){
+			queue.add(arrayData);
+		}
 	}
 	
 	
-	public void remove(ArrayBlockingQueue array){
-		if(array.size() > aveLength){
-			array.remove();
+	/**
+	 * @param queue is the queue you wish to pass,
+	 */
+	public void remove(ArrayBlockingQueue<?> queue){
+		if(queue.size() > aveLength){
+			queue.remove();
 		}
 	}
 }

@@ -40,7 +40,7 @@ public class JoystickControl {
 		case 1:
 			x = joy1Axis(0);
 			y = joy1Axis(1);
-			z = 0;
+			z = joy1Axis(4);
 			angle = getAngle(x, -y);
 			break;
 			//single Logitech Attack
@@ -54,7 +54,7 @@ public class JoystickControl {
 		case 3:
 			x = (joy1Axis(1)-joy2Axis(1))/2;
 			y = (joy1Axis(1)+joy2Axis(1))/2;
-			z = 0;
+			z = joy1Axis(0);
 			angle = getAngle(x,-y);
 			break;
 			//Nyko Airflo
@@ -73,6 +73,10 @@ public class JoystickControl {
 			break;
 		}
 		SmartDashboard.putString("Controller:", profile);
+		SmartDashboard.putNumber("Joystick X", x);
+		SmartDashboard.putNumber("Joystick Y", y);
+		SmartDashboard.putNumber("Joystick Z", z);
+		SmartDashboard.putNumber("Joystick Angle", angle);
 		return vector = new JoyVector(x, y, z, angle);
 	}
 
