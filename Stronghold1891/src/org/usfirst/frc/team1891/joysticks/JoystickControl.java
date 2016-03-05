@@ -80,19 +80,12 @@ public class JoystickControl {
 	 * initiates the joystick
 	 * @param Joy
 	 * @param Joy2 Second joystick for two hands
+	 * Always instantiate two joysticks, even if you're not using two. If you don't, it'll throw exceptions like a Mardi Gras float throwing beads
 	 */
 	public void init(Joystick Joy, Joystick Joy2)
 	{
 		Stick1 = Joy;
 		Stick2 = Joy2;
-		clearButtons();
-	}
-	/**
-	 * @param Joy is the index for which joystick you want to select
-	 */
-	public void init(Joystick Joy)
-	{
-		Stick1 = Joy;
 		clearButtons();
 	}
 
