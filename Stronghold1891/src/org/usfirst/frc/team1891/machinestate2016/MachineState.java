@@ -29,7 +29,7 @@ public class MachineState{
 	//5. Find goal target
 	//6. Fire at target.
 	//7. Look for rebound and begin moving back.
-	private int fieldX=351;//inches
+	private int fieldX=325;//inches
 	private int fieldY=319;//inches
 	private int stateNum=0;
 	private final int SHIFT_AMOUNT=23;//To be used in path validation
@@ -43,10 +43,12 @@ public class MachineState{
 	private LinkedList<Point> driveLine = new LinkedList<Point>();//A line that connects the shooting line and the starting line.
 	private boolean pathFound=false;
 	private static Timer stateTimer = new Timer();
-	private double robotSpeed=55; //robot speed for the 2016 robot in inches per second.
+	private double robotSpeed=35;//55; //robot speed for the 2016 robot in inches per second.
 	private boolean turnRight=false;
 	private boolean turnLeft=false;
 	AHRS nav = new AHRS(SPI.Port.kMXP);
+	private double angleOffSet=12;
+	
 	
 	private boolean stateTwoInitialized=false;
 	private double stateTwoRunTime=0;
@@ -117,8 +119,10 @@ public class MachineState{
 				turnThatRobotStateThree();
 				System.out.println("Time 3: "+stateThreeRunTime);
 			}
-			
-			
+			if(turnRight || turnLeft){
+				System.out.println("Actual Angel" + nav.getAngle());
+				System.out.println("angel to achieve" + stateThreeAngleToAchieve);
+			}
 			if(turnRight){
 				if(nav.getAngle()>=stateThreeAngleToAchieve){
 					turnRight=false;
@@ -151,9 +155,9 @@ public class MachineState{
 				stateFourRunTime=(lineThroughShooting.size()/robotSpeed);
 				stateFourInitialized=true;
 				turnThatRobotStateFour();
-				System.out.println("Time 3: "+stateFourRunTime);
+				System.out.println("CurrentAngle: "+nav.getAngle());
+				System.out.println("Angle To Get: "+stateFourAngleToAchieve);
 			}
-			
 			
 			if(turnRight){
 				if(nav.getAngle()>=stateFourAngleToAchieve){
@@ -196,13 +200,14 @@ public class MachineState{
 
 	private void turnThatRobotStateThree() {
 		double currentAngle=nav.getAngle();
-		//TODO: Make it so that the robot can actually turn left or right.
+		turnRight=false;
+		turnLeft=false;
 		
-		if(startingPosition.getY()>driveLine.getLast().getY()){//Turn Left
-			stateThreeAngleToAchieve=currentAngle+90;
+		if(startingPosition.getY()<driveLine.getLast().getY()){//Turn Left
+			stateThreeAngleToAchieve=currentAngle+(90-angleOffSet);
 			turnRight=true;
-		}else if(startingPosition.getY()<driveLine.getLast().getY()){
-			stateThreeAngleToAchieve=currentAngle-90;
+		}else if(startingPosition.getY()>driveLine.getLast().getY()){
+			stateThreeAngleToAchieve=currentAngle-(90-angleOffSet);
 			turnLeft=true;
 		}
 	}
@@ -211,13 +216,12 @@ public class MachineState{
 		double currentAngle=nav.getAngle();
 		turnRight=false;
 		turnLeft=false;
-		//TODO: Make it so that the robot can actually turn left or right.
 		
-		if(shootingPosition.getY()>driveLine.getLast().getY()){//Turn right
-			stateThreeAngleToAchieve=currentAngle-90;
+		if(startingPosition.getY()<driveLine.getLast().getY()){//Turn Left
+			stateFourAngleToAchieve=currentAngle+(90-angleOffSet);
 			turnRight=true;
-		}else if(shootingPosition.getY()<driveLine.getLast().getY()){
-			stateThreeAngleToAchieve=currentAngle+90;
+		}else if(startingPosition.getY()>driveLine.getLast().getY()){
+			stateFourAngleToAchieve=currentAngle-(90-angleOffSet);
 			turnLeft=true;
 		}
 	}
