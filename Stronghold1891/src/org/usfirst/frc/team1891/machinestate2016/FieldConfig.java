@@ -27,7 +27,7 @@ public class FieldConfig {
 	String line;
 	int previousY;
 	int previousX;
-	int fieldX = 351;
+	int fieldX = 325;
 	int fieldY = 319;
 	char[][] field;
 	
@@ -57,7 +57,6 @@ public class FieldConfig {
 				for(int j=0; j<fieldX ;j++){
 					field[j][i]=charset[j];
 				}
-				System.out.println(i);
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -65,8 +64,8 @@ public class FieldConfig {
 			System.exit(1);
 		}
 		found = false;
-		SmartDashboard.putNumber("robotX",0);
-		SmartDashboard.putNumber("robotY",0);
+		SmartDashboard.putNumber("robotX",SmartDashboard.getNumber("robotX"));
+		SmartDashboard.putNumber("robotY",SmartDashboard.getNumber("robotY"));
 	}
 
 	/**
@@ -85,7 +84,7 @@ public class FieldConfig {
 			if (found == false)
 			{
 				x++;
-				if (x > 350)
+				if (x > 324)
 				{
 					x = 0;
 					y++;
@@ -100,7 +99,7 @@ public class FieldConfig {
 		
 		field[x][y] = 'F';
 		
-		double xMeasure = 250 + SmartDashboard.getNumber("robotX");
+		double xMeasure = 239 + SmartDashboard.getNumber("robotX");
 		double yMeasure = SmartDashboard.getNumber("robotY");
 //		double xMeasure = 300;
 //		double yMeasure = 318;
