@@ -1,0 +1,2 @@
+Things to do at competition:
+1. Re-upload field.csv
