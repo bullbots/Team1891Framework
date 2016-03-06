@@ -31,37 +31,39 @@ public class MachineState{
 	//7. Look for rebound and begin moving back.
 	private int fieldX=325;//inches
 	private int fieldY=319;//inches
-	private int stateNum=0;
+	private int stateNum=0;//The current state number of the state machine.
 	private final int SHIFT_AMOUNT=23;//To be used in path validation
 	private char[][] field= new char[fieldX][fieldY];
-	private Point startingPosition=null;
-	private Point shootingPosition=null;
+	private Point startingPosition=null;//The starting position that the robot is in.
+	private Point shootingPosition=null;//The shooting position, this is where we want to get to.
 	private String path="/home/lvuser/fieldcsv/field.csv";//"C:\\Users\\Tyler\\OneDrive\\FIRST\\Stronghold\\Stronghold1891\\fieldcsv\\field.csv";
 	private LinkedList<Point> solutionPath = new LinkedList<Point>();//The solution path once it is found.
 	private LinkedList<Point> lineThroughShooting = new LinkedList<Point>();//A line of points through the shooting position
 	private LinkedList<Point> lineThroughStarting = new LinkedList<Point>();//A line of points through the starting position
 	private LinkedList<Point> driveLine = new LinkedList<Point>();//A line that connects the shooting line and the starting line.
-	private boolean pathFound=false;
-	private static Timer stateTimer = new Timer();
+	private boolean pathFound=false;// True when the path is found from the starting postion to the shooting position.
+	private static Timer stateTimer = new Timer();//The state timer used to find distance
 	private double robotSpeed=35;//55; //robot speed for the 2016 robot in inches per second.
-	private boolean turnRight=false;
-	private boolean turnLeft=false;
-	AHRS nav = new AHRS(SPI.Port.kMXP);
-	private double angleOffSet=12;
+	private boolean turnRight=false;//True if the robot needs to turn right during state 3 and 4
+	private boolean turnLeft=false;//True if the robot needs to turn left during state 3 and 4
+	AHRS nav = new AHRS(SPI.Port.kMXP);// The navx that is used to find the angle
+	private double angleOffSet=5;//Used to offset the angle that the nav finds, because the robot keeps coasting after told to stop.
 	
 	
-	private boolean stateTwoInitialized=false;
-	private double stateTwoRunTime=0;
+	private boolean stateTwoInitialized=false;//True when state two has been initialized
+	private double stateTwoRunTime=0;//The total runtime of state2, used mainly for debugging purposes
 	
-	private boolean stateThreeInitialized=false;
-	private double stateThreeRunTime;
-	private boolean stateThreeDoneTurning=false;
-	private double stateThreeAngleToAchieve;
+	private boolean stateThreeInitialized=false;//True when state three has been initialized
+	private double stateThreeRunTime;//The total runtime of state3, used mainly for debugging purposes
+	private boolean stateThreeDoneTurning=true;//True when the robot is done turning
+	private double stateThreeAngleToAchieve;//The angle that the robot needs to turn to.
+	private boolean stateThreeTimerStarted=false;//True when the time has been started for this state.
 	
-	private boolean stateFourInitialized=false;
-	private double stateFourRunTime;
-	private boolean stateFourDoneTurning=false;
-	private double stateFourAngleToAchieve;
+	private boolean stateFourInitialized=false;//True when state four has been initialized
+	private double stateFourRunTime;//The total runtime of state4, used mainly for debuggin purposes.
+	private boolean stateFourDoneTurning=true;//True when the robot is done turning.
+	private double stateFourAngleToAchieve;//The angle that the robot needs to turn to.
+	private boolean stateFourTimerStarted=false;//True when the time has been started for this state.
 	/**
 	 *0. Find crossable defense, robot should be looking for closest possible defense.
 	 *1. Route path to defense, while the crossable defense can be found robot should be routing a path to the defense.
@@ -114,19 +116,15 @@ public class MachineState{
 				stateTimer.stop();
 				stateTimer.reset();
 				stateThreeRunTime=(driveLine.size()/robotSpeed);
-				System.out.println("Runtime:"+stateThreeRunTime);
 				stateThreeInitialized=true;
 				turnThatRobotStateThree();
-				System.out.println("Time 3: "+stateThreeRunTime);
-			}
-			if(turnRight || turnLeft){
-				System.out.println("Actual Angel" + nav.getAngle());
-				System.out.println("angel to achieve" + stateThreeAngleToAchieve);
 			}
 			if(turnRight){
 				if(nav.getAngle()>=stateThreeAngleToAchieve){
 					turnRight=false;
 					stateTimer.start();
+					stateThreeDoneTurning=true;
+					stateThreeTimerStarted=true;
 				}
 			}
 			
@@ -134,10 +132,13 @@ public class MachineState{
 				if(nav.getAngle()<=stateThreeAngleToAchieve){
 					turnLeft=false;
 					stateTimer.start();
+					stateThreeDoneTurning=true;
+					stateThreeTimerStarted=true;
 				}
 			}
-			if(stateThreeDoneTurning){
+			if(stateThreeDoneTurning && !stateThreeTimerStarted){
 				stateTimer.start();
+				stateThreeTimerStarted=true;
 			}
 			
 			if(stateTimer.get() >=stateThreeRunTime){
@@ -155,14 +156,13 @@ public class MachineState{
 				stateFourRunTime=(lineThroughShooting.size()/robotSpeed);
 				stateFourInitialized=true;
 				turnThatRobotStateFour();
-				System.out.println("CurrentAngle: "+nav.getAngle());
-				System.out.println("Angle To Get: "+stateFourAngleToAchieve);
 			}
 			
 			if(turnRight){
 				if(nav.getAngle()>=stateFourAngleToAchieve){
 					turnRight=false;
 					stateTimer.start();
+					stateFourTimerStarted=true;
 				}
 			}
 			
@@ -170,10 +170,13 @@ public class MachineState{
 				if(nav.getAngle()<=stateFourAngleToAchieve){
 					turnLeft=false;
 					stateTimer.start();
+					stateFourTimerStarted=true;
 				}
 			}
-			if(stateFourDoneTurning){
+			
+			if(stateFourDoneTurning && !stateFourTimerStarted){
 				stateTimer.start();
+				stateFourTimerStarted=true;
 			}
 			
 			if(stateTimer.get() >=stateFourRunTime){
@@ -206,9 +209,11 @@ public class MachineState{
 		if(startingPosition.getY()<driveLine.getLast().getY()){//Turn Left
 			stateThreeAngleToAchieve=currentAngle+(90-angleOffSet);
 			turnRight=true;
+			stateThreeDoneTurning=false;
 		}else if(startingPosition.getY()>driveLine.getLast().getY()){
 			stateThreeAngleToAchieve=currentAngle-(90-angleOffSet);
 			turnLeft=true;
+			stateThreeDoneTurning=false;
 		}
 	}
 	
@@ -220,9 +225,11 @@ public class MachineState{
 		if(startingPosition.getY()<driveLine.getLast().getY()){//Turn Left
 			stateFourAngleToAchieve=currentAngle+(90-angleOffSet);
 			turnRight=true;
+			stateFourDoneTurning=false;
 		}else if(startingPosition.getY()>driveLine.getLast().getY()){
 			stateFourAngleToAchieve=currentAngle-(90-angleOffSet);
 			turnLeft=true;
+			stateFourDoneTurning=false;
 		}
 	}
 
@@ -260,7 +267,7 @@ public class MachineState{
 		//W== wall, robot cannot go over and should not be within 12 cells of the R
 		//G== goal tower
 		//R==ramps
-		//C==crossable defenses
+		//1-5= various defenses, the first position is the low bar, the other positions increment from there.
 		//F==floor
 		//M==Robot
 		//S==near shooting position.
@@ -423,9 +430,10 @@ public class MachineState{
 	private boolean validatePath(LinkedList<Point> path){
 		for(int i=0; i<path.size(); i++){
 			try{
-				for(int j=0; j<SHIFT_AMOUNT;j++){
+				for(int j=0; j<SHIFT_AMOUNT;j++){					
 					if(field[(int) path.get(i).getX()][(int) (path.get(i).getY()+j)]=='W' ||
-							field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W'){
+					   field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W' ||
+					   Integer.parseInt((field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)])+"") != FieldConfig.targetObstacle){
 						return false;
 					}
 				}
