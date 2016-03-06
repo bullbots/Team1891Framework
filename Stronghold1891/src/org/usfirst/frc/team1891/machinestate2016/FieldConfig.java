@@ -71,7 +71,7 @@ public class FieldConfig {
 		found = false;
 		SmartDashboard.putNumber("robotX",SmartDashboard.getNumber("robotX"));
 		SmartDashboard.putNumber("robotY",SmartDashboard.getNumber("robotY"));
-		SmartDashboard.putString("crossingTarget","0");
+		SmartDashboard.putString("crossingTarget",SmartDashboard.getString("crossingTarget"));
 	}
 
 	/**
