@@ -89,17 +89,10 @@ public class NavXSubsystem {
 		yaw = ave(Yaw.toArray(new Float[Yaw.size()]));
 		SmartDashboard.putNumber(   "IMU_Yaw",              yaw);
 		
-<<<<<<< HEAD
-		angle = nav.getAngle();
-//		Angle.remove();
-//		angle = ave(Angle.toArray(new Double[Angle.size()]));
-		SmartDashboard.putNumber(   "IMU_TotalYaw",         nav.getAngle());
-=======
 		add(Angle, nav.getAngle());
 		remove(Angle);
 		angle = ave(Angle.toArray(new Double[Angle.size()]));
 		SmartDashboard.putNumber(   "IMU_TotalYaw",         angle);
->>>>>>> af741823ac0a52b575cde679724392c05159aa8e
 		
 		add(WorldLinearAccelX,nav.getWorldLinearAccelX());
 		remove(WorldLinearAccelX);
