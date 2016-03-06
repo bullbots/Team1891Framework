@@ -34,7 +34,7 @@ public class FieldConfig {
 	 * The obstacle location at which we want to cross.
 	 * number 1 is low bar, and it continues from there
 	 */
-	public static int targetObstacle;
+	public static char targetObstacle;
 	
 	/**
 	 * 
@@ -71,7 +71,7 @@ public class FieldConfig {
 		found = false;
 		SmartDashboard.putNumber("robotX",SmartDashboard.getNumber("robotX"));
 		SmartDashboard.putNumber("robotY",SmartDashboard.getNumber("robotY"));
-		SmartDashboard.putNumber("auto crossing target",0);
+		SmartDashboard.putString("auto crossing target","0");
 	}
 
 	/**
@@ -136,6 +136,6 @@ public class FieldConfig {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		targetObstacle = (int) SmartDashboard.getNumber("auto crossing target");
+		targetObstacle = SmartDashboard.getString("auto crossing target").charAt(0);
 	}
 }
