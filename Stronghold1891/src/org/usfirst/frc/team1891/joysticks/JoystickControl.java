@@ -40,7 +40,7 @@ public class JoystickControl {
 		case 1:
 			x = joy1Axis(0);
 			y = joy1Axis(1);
-			z = 0;
+			z = joy1Axis(4);
 			angle = getAngle(x, -y);
 			break;
 			//single Logitech Attack
@@ -54,7 +54,7 @@ public class JoystickControl {
 		case 3:
 			x = (joy1Axis(1)-joy2Axis(1))/2;
 			y = (joy1Axis(1)+joy2Axis(1))/2;
-			z = 0;
+			z = joy1Axis(0);
 			angle = getAngle(x,-y);
 			break;
 			//Nyko Airflo
@@ -73,6 +73,10 @@ public class JoystickControl {
 			break;
 		}
 		SmartDashboard.putString("Controller:", profile);
+		SmartDashboard.putNumber("Joystick X", x);
+		SmartDashboard.putNumber("Joystick Y", y);
+		SmartDashboard.putNumber("Joystick Z", z);
+		SmartDashboard.putNumber("Joystick Angle", angle);
 		return vector = new JoyVector(x, y, z, angle);
 	}
 
@@ -80,19 +84,12 @@ public class JoystickControl {
 	 * initiates the joystick
 	 * @param Joy
 	 * @param Joy2 Second joystick for two hands
+	 * Always instantiate two joysticks, even if you're not using two. If you don't, it'll throw exceptions like a Mardi Gras float throwing beads
 	 */
 	public void init(Joystick Joy, Joystick Joy2)
 	{
 		Stick1 = Joy;
 		Stick2 = Joy2;
-		clearButtons();
-	}
-	/**
-	 * @param Joy is the index for which joystick you want to select
-	 */
-	public void init(Joystick Joy)
-	{
-		Stick1 = Joy;
 		clearButtons();
 	}
 
