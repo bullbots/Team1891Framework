@@ -71,7 +71,7 @@ public class FieldConfig {
 		found = false;
 		SmartDashboard.putNumber("robotX",SmartDashboard.getNumber("robotX"));
 		SmartDashboard.putNumber("robotY",SmartDashboard.getNumber("robotY"));
-		SmartDashboard.putString("auto crossing target","0");
+		SmartDashboard.putString("crossingTarget","0");
 	}
 
 	/**
@@ -136,6 +136,6 @@ public class FieldConfig {
 			e.printStackTrace();
 			System.exit(1);
 		}
-		targetObstacle = SmartDashboard.getString("auto crossing target").charAt(0);
+		targetObstacle = SmartDashboard.getString("crossingTarget").charAt(0);
 	}
 }
