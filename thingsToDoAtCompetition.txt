@@ -1,2 +1,6 @@
 Things to do at competition:
 1. Re-upload field.csv
+2. Change back all of the emulated joysticks for autonomous code.
+3. Change back the velocity to 55 inches/sec in MachineState.java
+4. Make sure autonomous angle offset is the same for both robots.
+5. Enable break mode on all the talons
