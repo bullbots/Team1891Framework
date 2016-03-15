@@ -4,3 +4,27 @@ Things to do at competition:
 3. Change back the velocity to 55 inches/sec in MachineState.java
 4. Make sure autonomous angle offset is the same for both robots.
 5. Enable break mode on all the talons
+6. Make sure that the robot can handle the 3 visual inputs at competition (it cannot right now).
+7. Make sure that the robot can go over all the different obstacles.
+8. Make sure that the pre game setup code cannot break.
+9. Make sure that the co-pilots stick works
+10. Test state 5 at competition.
+11. Create state 6.
+12. Finish test program.
+13. Arduino Lights
+14. Camera mounting position needs to be figured out.
+15. Practice going over portcullis
+16. Practice going over rampparts 
+17. Practice going over drawbridge
+18. Run wench thing for climbing
+
+
+
+
+BEFORE COMPETITION:
+
+1. Have long ethernet cable
+2. Extra camera
+3. Put 2016 programming stuff in the repo
+4. Joystick controllers
+5. All computers & chargers
