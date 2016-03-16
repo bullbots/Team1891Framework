@@ -1,22 +1,24 @@
 Things to do at competition:
-1. Re-upload field.csv
-2. Change back all of the emulated joysticks for autonomous code.
-3. Change back the velocity to 55 inches/sec in MachineState.java
-4. Make sure autonomous angle offset is the same for both robots.
-5. Enable break mode on all the talons
-6. Make sure that the robot can handle the 3 visual inputs at competition (it cannot right now).
-7. Make sure that the robot can go over all the different obstacles.
-8. Make sure that the pre game setup code cannot break.
-9. Make sure that the co-pilots stick works
-10. Test state 5 at competition.
-11. Create state 6.
-12. Finish test program.
-13. Arduino Lights
-14. Camera mounting position needs to be figured out.
-15. Practice going over portcullis
-16. Practice going over rampparts 
-17. Practice going over drawbridge
-18. Run wench thing for climbing
+1 (Tyler). Re-upload field.csv
+2 (Tyler). Change back all of the emulated joysticks for autonomous code.
+3 (Tyler). Change back the velocity to 55 inches/sec in MachineState.java
+4 (Tyler -Need robot). Make sure autonomous angle offset is the same for both robots.
+5 (Edgar -Need robot). Enable break mode on all the talons
+6 (Tyler - Need robot). Make sure that the robot can handle the 3 visual inputs at competition (it cannot right now).
+7 (Practice time - Need Robot). Make sure that the robot can go over all the different obstacles.
+8 (Edgar - need robot). Make sure that the pre game setup code cannot break.
+9 (Edgar - Need Robot). Make sure that the co-pilots stick works
+10 (Tyler - Need Robot). Test state 5 at competition.
+11 (Tyler - Need Robot). Create state 6.
+12 (Edgar - need Robot). Finish test program & test robot tester.
+13 (Edgar - need robot). Arduino Lights
+14 (Collin - robot). Camera mounting position needs to be figured out.
+15 (Practice time - Need Robot). Practice going over portcullis
+16 (Practice time - Need Robot). Practice going over rampparts 
+17 (Practice time - Need Robot). Practice going over drawbridge
+18 (Edgar - Need Robot). Run wench thing for climbing, run the solenoid from digital IO or PWM
+19 (Tyler - Need Robot). In the automous mapping make sure that if the robot is offset by a small amount, ignore it
+20 (Edgar - Need Robot). Make sure that all the arduino states are legal for the match.
 
 
 
