@@ -69,9 +69,23 @@ public class FieldConfig {
 			System.exit(1);
 		}
 		found = false;
-		SmartDashboard.putNumber("robotX",SmartDashboard.getNumber("robotX"));
-		SmartDashboard.putNumber("robotY",SmartDashboard.getNumber("robotY"));
-		SmartDashboard.putString("crossingTarget",SmartDashboard.getString("crossingTarget"));
+//		SmartDashboard.getBoolean("your mom");
+		try {
+			SmartDashboard.putNumber("robotX",SmartDashboard.getNumber("robotX"));
+		} catch (edu.wpi.first.wpilibj.networktables.NetworkTableKeyNotDefined e) {
+			SmartDashboard.putNumber("robotX",0);
+		}
+		try {
+			SmartDashboard.putNumber("robotY",SmartDashboard.getNumber("robotY"));
+		} catch (edu.wpi.first.wpilibj.networktables.NetworkTableKeyNotDefined e) {
+			SmartDashboard.putNumber("robotY",0);
+		}
+		try {
+			SmartDashboard.putString("crossingTarget",SmartDashboard.getString("crossingTarget"));
+		} catch (edu.wpi.first.wpilibj.networktables.NetworkTableKeyNotDefined e) {
+			SmartDashboard.putString("crossingTarget","0");
+		}
+		
 	}
 
 	/**
