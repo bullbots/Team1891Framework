@@ -43,7 +43,7 @@ public class RobotCentering {
 			centerControlWidth.setOutputRange(-0.2,0.2);
 			centerControlWidth.setContinuous();
 			centerControlWidth.enable();
-			SmartDashboard.putData("PID width", centerControlWidth);
+//			SmartDashboard.putData("PID width", centerControlWidth);
 		}
 		{
 			//Center Y axis

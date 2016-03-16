@@ -430,14 +430,62 @@ public class MachineState{
 	private boolean validatePath(LinkedList<Point> path){
 		for(int i=0; i<path.size(); i++){
 			try{
-				for(int j=0; j<SHIFT_AMOUNT;j++){					
-					if(field[(int) path.get(i).getX()][(int) (path.get(i).getY()+j)]=='W' ||
-					   field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W' ||
-					   Integer.parseInt((field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)])+"") != FieldConfig.targetObstacle){
+				for(int j=0; j<SHIFT_AMOUNT;j++){
+					//Check for right obstacle
+					boolean goodObstacle=true;
+					switch((field[(int) path.get(i).getX()][(int) (path.get(i).getY())])){
+					case 'R':
+						goodObstacle=true;
+						break;
+					case 'F':
+						goodObstacle=true;
+						break;
+					case '1':
+						if('1'==FieldConfig.targetObstacle){
+							goodObstacle=true;
+						}else{
+							goodObstacle=false;
+						}
+						break;
+					case '2':
+						if('2'==FieldConfig.targetObstacle){
+							goodObstacle=true;
+						}else{
+							goodObstacle=false;
+						}
+						break;
+					case '3':
+						if('3'==FieldConfig.targetObstacle){
+							goodObstacle=true;
+						}else{
+							goodObstacle=false;
+						}
+						break;
+					case '4':
+						if('4'==FieldConfig.targetObstacle){
+							goodObstacle=true;
+						}else{
+							goodObstacle=false;
+						}
+						break;
+					case '5':
+						if('5'==FieldConfig.targetObstacle){
+							goodObstacle=true;
+						}else{
+							goodObstacle=false;
+						}
+						break;
+					}
+					//If there is no wall north OR south AND goodObstacle
+					if((field[(int) path.get(i).getX()][(int) (path.get(i).getY()+j)]=='W' ||
+					   field[(int) path.get(i).getX()][(int) (path.get(i).getY()-j)]=='W') &&
+					   goodObstacle)
+					   {
 						return false;
 					}
 				}
 			}catch(ArrayIndexOutOfBoundsException e){
+			
 				return false;
 			}
 		}
