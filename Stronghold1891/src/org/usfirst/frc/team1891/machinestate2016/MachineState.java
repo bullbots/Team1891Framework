@@ -43,7 +43,7 @@ public class MachineState{
 	private LinkedList<Point> driveLine = new LinkedList<Point>();//A line that connects the shooting line and the starting line.
 	private boolean pathFound=false;// True when the path is found from the starting postion to the shooting position.
 	private static Timer stateTimer = new Timer();//The state timer used to find distance
-	private double robotSpeed=35;//55; //robot speed for the 2016 robot in inches per second.
+	private double robotSpeed=55; //robot speed for the 2016 robot in inches per second.
 	private boolean turnRight=false;//True if the robot needs to turn right during state 3 and 4
 	private boolean turnLeft=false;//True if the robot needs to turn left during state 3 and 4
 	AHRS nav = new AHRS(SPI.Port.kMXP);// The navx that is used to find the angle
