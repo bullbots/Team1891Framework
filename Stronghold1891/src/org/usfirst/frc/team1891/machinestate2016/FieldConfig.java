@@ -42,8 +42,6 @@ public class FieldConfig {
 	public FieldConfig()
 	{
 		fl = new File("/home/lvuser/fieldcsv/field.csv");
-//		fl = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/field.csv");
-//		File fl2 = new File("/c:/Users/408robot.MVHS-ROBOT-LT/workspace/Stronghold/Stronghold1891/fieldcsv/fieldWrite.csv");
 		try {
 			read = new BufferedReader(new FileReader(fl));
 		} catch (FileNotFoundException e) {
