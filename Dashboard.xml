@@ -1,0 +1,104 @@
+<xml version="1.0">
+<dashboard>
+	<widget field="ButtonToggle 1" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="142"/>
+	</widget>
+	<widget field="ButtonToggle 2" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="184"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 10" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="423" y="242"/>
+		<height>20</height>
+	</widget>
+	<widget field="ButtonToggle 10" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="261" y="204"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 9" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="261" y="183"/>
+	</widget>
+	<widget field="ButtonToggle 9" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="261" y="162"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 8" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="261" y="141"/>
+	</widget>
+	<widget field="ButtonToggle 8" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="261" y="120"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 7" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="247" y="290"/>
+	</widget>
+	<widget field="ButtonToggle 7" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="447" y="277"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 6" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="430" y="304"/>
+	</widget>
+	<widget field="ButtonToggle 6" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="261" y="19"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 5" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="41" y="0"/>
+	</widget>
+	<widget field="ButtonToggle 5" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="310"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 4" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="289"/>
+	</widget>
+	<widget field="ButtonToggle 4" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="268"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 3" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="247"/>
+	</widget>
+	<widget field="ButtonToggle 3" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="226"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 2" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="205"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 1" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="163"/>
+	</widget>
+	<widget field="ButtonToggle coDriverJoy 0" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="121"/>
+	</widget>
+	<widget field="ButtonToggle 0" type="Boolean" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="100"/>
+	</widget>
+	<widget field="crossingTarget" type="String" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="79"/>
+	</widget>
+	<widget field="robotY" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="58"/>
+	</widget>
+	<widget field="robotX" type="Number" class="edu.wpi.first.smartdashboard.gui.elements.TextBox">
+		<location x="0" y="37"/>
+	</widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.ConnectionIndicator">
+		<location x="8" y="4"/>
+		<property name="Graphics" value="Rounded"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="416" y="42"/>
+		<property name="Text" value="Co-driver stick"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="330" y="41"/>
+		<property name="Text" value="Driver stick"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="347" y="4"/>
+		<width>101</width>
+		<property name="Text" value="Button Toggles"/>
+	</static-widget>
+	<static-widget class="edu.wpi.first.smartdashboard.gui.elements.Label">
+		<location x="550" y="4"/>
+		<width>105</width>
+		<property name="Text" value="Auto Configuration"/>
+	</static-widget>
+</dashboard>
+<live-window>
+</live-window>
+</xml>

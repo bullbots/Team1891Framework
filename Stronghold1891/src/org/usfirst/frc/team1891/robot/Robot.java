@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.PWM;
 import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+
 import java.util.LinkedList;
 import org.usfirst.frc.team1891.arduino.Arduino;
 import org.usfirst.frc.team1891.drivesystem.*;
@@ -143,6 +145,18 @@ public class Robot extends IterativeRobot {
 	public void autonomousPeriodic() {	
 
 		elbowStartingPos = elbow.getFeedbackValuePosition();
+		if (elbow.getFeedbackValuePosition() > elbowStartingPos + 0.3*elbowDelta)
+		{
+			elbow.setVoltage(-5);
+		}
+		else if (elbow.getFeedbackValuePosition() < elbowStartingPos + 0.3*elbowDelta && elbow.getFeedbackValuePosition() > elbowStartingPos + 0.4*elbowDelta)
+		{
+			elbow.setVoltage(-3.3);
+		}
+		else
+		{
+			elbow.setVoltage(2);
+		}
 //		autoMachine.update();
 //		try {
 //			autoState=autoMachine.getState();
@@ -262,6 +276,13 @@ public class Robot extends IterativeRobot {
 		
 		this.elbowControl();
 		this.ballCollectionAndShooting();
+		
+		//smartDashboard data - may or may not work
+		SmartDashboard.putBoolean("Axe Raised", coDriverJoy.buttonToggle(2));
+		SmartDashboard.putBoolean("EndGame Started", coDriverJoy.buttonToggle(6));
+		SmartDashboard.putBoolean("Manual Mode", coDriverJoy.buttonToggle(10));
+		SmartDashboard.putBoolean("extending", coDriverJoy.buttonToggle(7));
+		SmartDashboard.putBoolean("Retracting", coDriverJoy.buttonToggle(8));
 	}
 
 
@@ -672,6 +693,10 @@ public class Robot extends IterativeRobot {
 			{
 				elbow.setVoltage(0);
 			}
+		}
+		if (coDriverJoy.button(11))
+		{
+			elbowStartingPos = elbow.getFeedbackValuePosition();
 		}
 		System.out.println("Min: "+elbowStartingPos);
 		System.out.println("Max: "+elbow.getFeedbackValuePosition());
