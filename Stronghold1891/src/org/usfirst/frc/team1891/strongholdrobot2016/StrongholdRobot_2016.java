@@ -3,6 +3,7 @@ package org.usfirst.frc.team1891.strongholdrobot2016;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Compressor;
+import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
@@ -29,10 +30,11 @@ import org.usfirst.frc.team1891.visionsystem.RobotCentering;
  * directory.
  */
 public class StrongholdRobot_2016 extends IterativeRobot {
-	
-	
+
+
 	RobotCentering centerRobo;//This is the class that will control all robot centering code.
-	JoystickControl driverJoy;//The driver joystick.
+	JoystickControl driverJoy;//, coDriverJoy;//The driver joystick.
+	Joystick coDriverJoy;
 	DriveSystem drive;//The driver control system, all driving will be done through this class.
 	LinkedList<MotorAndSide> motors;//The linked list that the drive system requres for all motors
 	TalonSRX ballCollect;//The ball collector SRX, this is the talon that is in the front of the robot.
@@ -49,6 +51,11 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	Arduino lights;//This is the class that controls the arduino lights.
 	boolean printedState1=false, printedState2=false, printedState3 =false, printedState4 =false, printedState5 =false, printedState6=false, printedState7=false;//Boolean flags for auto print statements.
 	FieldConfig preGameConfig;//Class that controls pregame configuration.
+	DigitalOutput winch;//Used to extend and retract the wench in teleop mode
+	boolean[] testLog;//Just saves test data, used in test periodic
+	boolean[] testComplete;//Tracks test progress, used in test periodic.
+	String[] componentList;//List of the test numbers, used in test periodic
+	Timer armLiftTime;//Used to calibrate timeing for lifting
 	/**
 	 * Boolean to tell if the ball has been fired or not.
 	 */
@@ -59,8 +66,8 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 */
 	public void robotInit() {
 		driverJoy = new JoystickControl();//Joystick for the driver
-		driverJoy.init(new Joystick(0), new Joystick(1));//Instantiate joystick for the driver, make sure the co-driver controller is not on port 0 or 1.
-		
+		driverJoy.init(new Joystick(1), new Joystick(2));//Instantiate joystick for the driver, make sure the co-driver controller is not on port 0 or 1.
+//		coDriverJoy = new Joystick(2);
 		motors = new LinkedList<MotorAndSide>();//The list of motors to be passed to the drive system
 		try {
 			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(4)), "RIGHT", true));//Has encoder
@@ -76,6 +83,8 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		solenoids = new LinkedList<SolenoidBoth>();//List of all solenoids on the robot.
 		solenoids.add(new SolenoidBoth(1, 0));//Shooter solenoid
 		solenoids.add(new SolenoidBoth(3, 2));//Solenoid that launches ball.
+		solenoids.add(new SolenoidBoth(7, 5));//bottom arm solenoid
+		solenoids.add(new SolenoidBoth(6, 4));//top arm solenoid
 		compressor  = new LinkedList<Compressor>();//List of all compressors (just one)
 		compressor.add(new Compressor(0));
 		pn = new PnController(solenoids, compressor);//Instantiate the PnController
@@ -84,6 +93,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		lights = new Arduino(4);//Instatiate the arduino controller
 		elbow = new TalonSRX(new CANTalon(7));//Instantiate the motor controller for the elbow.
 		elbow.initVoltage();//Initate the arm motor controller in voltage mode.
+		winch = new DigitalOutput(0);
 	}
 
 
@@ -98,11 +108,14 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 */
 	public void autonomousInit() {
 
-//		stateMachine.initiateMachine();
-//		stateMachine.findShotestPath();
+		//		stateMachine.initiateMachine();
+		//		stateMachine.findShotestPath();
 
 		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
 		drive.enableAll();
+		/**
+		 * All boolean values are set to false at the beginning of auto.
+		 */
 		printedState1=false;
 		printedState2=false;
 		printedState3 =false;
@@ -125,7 +138,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 			autoState=autoMachine.getState();
 		} catch (InvalidStateException e) {
 			e.printStackTrace();
-			
+
 		}
 
 		switch(autoState){
@@ -210,13 +223,13 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 			//#Dance
 			break;
 		}
-		
+
 	}
-	
-	
+
+
 	public void teleopInit(){
 		System.out.println("In teleop init");
-		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
+		drive.setDriveSystem(driveModes.TANK_DRIVE);
 		drive.enableAll();
 		autoMachine = new MachineState();
 
@@ -227,68 +240,483 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 			lights.writeTeam(1);
 		}
 	}
-	
-	
-	
+
+
+
 	/**
 	 * 
 	 * This function is called periodically during operator control
 	 */
 	public void teleopPeriodic() {
 		drive.drive(driverJoy.getData());
-		if(driverJoy.button(3)){//Collect ball
-			ballCollect.setVoltage(12);
-			rearShooter.setVoltage(2);
-			
+
+
+//		this.elbowControl();
+		this.ballCollectionAndShooting();
+//		System.out.println(coDriverJoy.getRawButton(1));
+//		if(coDriverJoy.getRawButton(4)){//Collect ball
+//			ballCollect.setVoltage(5);
+//			rearShooter.setVoltage(5);
+//			pn.extend(0);
+//		}else{//Do nothing
+//			pn.retract(0);
+//			ballCollect.setVoltage(0);
+//			rearShooter.setVoltage(0);
+//		}
+//
+//		if(coDriverJoy.getRawButton(3)){//Shoot ball
+//			pn.extend(1);
+//			ballShooterRectractTime.start();
+//		}else if(ballShooterRectractTime.get()>1){
+//			pn.retract(1);
+//			ballShooterRectractTime.stop();
+//			ballShooterRectractTime.reset();
+//		}
+		if (elbow.getFeedbackValuePosition() > -588)
+			{
+				elbow.setVoltage(-5);
+			}
+			else if (elbow.getFeedbackValuePosition() < - 588 && elbow.getFeedbackValuePosition() > -700)
+			{
+				elbow.setVoltage(-3.3);
+			}
+			else
+			{
+				elbow.setVoltage(2);
+			}
+	}
+
+
+	public void testInit(){
+		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
+		drive.enableAll();
+		testComplete = new boolean[11];
+		for (int x=0; x<testComplete.length; x++)
+		{
+			testComplete[x] = false;
+		}
+		testLog = new boolean[10];
+		componentList[0] = "drive system";
+		componentList[1] = "shooting wheel";
+		componentList[2] = "collecting wheel";
+		componentList[3] = "elbow";
+		componentList[4] = "trigger solinoid";
+		componentList[5] = "trigger solinoid";
+		componentList[6] = "shooter lift solinoid extend";
+		componentList[7] = "shooter lift solinoid retract";
+		componentList[8] = "bottom arm solinoid extend";
+		componentList[9] = "bottom arm solinoid retract";
+		componentList[10] = "top arm solinoid extend";
+		componentList[11] = "top arm solinoid retract";
+		componentList[12] = "winch retract";
+		componentList[13] = "whinch extend";
+		System.out.println(componentList[0]);
+		System.out.println("press 1 for success, 2 for fail");
+	}
+
+	/**
+	 * This function is called periodically during test mode
+	 */
+	public void testPeriodic() {
+		drive.drive(driverJoy.getData());	
+		// drive test - robot will drive
+		if (!testComplete[0])
+		{
+			drive.drive(driverJoy.getData());
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[0] = true;
+				drive.drive(new JoyVector(0,0,0,0));
+				testComplete[0] = true;
+				System.out.println(componentList[1]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[0] = false;
+				drive.drive(new JoyVector(0,0,0,0));
+				testComplete[0] = true;
+				System.out.println(componentList[1]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		// back shooting wheel
+		else if (!testComplete[1])
+		{
+			rearShooter.setVoltage(4);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[1] = true;
+				rearShooter.setVoltage(0);
+				testComplete[1] = true;
+				System.out.println(componentList[2]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[1] = false;
+				rearShooter.setVoltage(0);
+				testComplete[1] = true;
+				System.out.println(componentList[2]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//collecting and shooting wheel
+		else if (!testComplete[2])
+		{
+			ballCollect.setVoltage(4);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[2] = true;
+				ballCollect.setVoltage(0);
+				testComplete[2] = true;
+				System.out.println(componentList[3]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[2] = false;
+				ballCollect.setVoltage(0);
+				testComplete[2] = true;
+				System.out.println(componentList[3]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//the arm elbow motor
+		else if (!testComplete[3])
+		{
+			elbow.setVoltage(-3);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[3] = true;
+				elbow.setVoltage(0);
+				testComplete[3] = true;
+				System.out.println(componentList[4]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[3] = false;
+				elbow.setVoltage(0);
+				testComplete[3] = true;
+				System.out.println(componentList[4]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//ball pushing solenoid
+		else if (!testComplete[4])
+		{
+			pn.extend(1);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[4] = true;
+				testComplete[4] = true;
+				System.out.println(componentList[5]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[4] = false;
+				testComplete[4] = true;
+				System.out.println(componentList[5]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		else if (!testComplete[5])
+		{
+			pn.retract(1);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[5] = true;
+				testComplete[5] = true;
+				System.out.println(componentList[6]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[5] = false;
+				testComplete[5] = true;
+				System.out.println(componentList[6]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//shooter solenoid
+		else if (!testComplete[6])
+		{
+			pn.extend(0);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[6] = true;
+				testComplete[6] = true;
+				System.out.println(componentList[7]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[6] = false;
+				testComplete[6] = true;
+				System.out.println(componentList[7]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		else if (!testComplete[7])
+		{
+			pn.retract(0);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[7] = true;
+				testComplete[7] = true;
+				System.out.println(componentList[8]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[7] = false;
+				testComplete[7] = true;
+				System.out.println(componentList[8]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//bottom arm solenoids
+		else if (!testComplete[8])
+		{
+			pn.extend(2);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[8] = true;
+				testComplete[8] = true;
+				System.out.println(componentList[9]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[8] = false;
+				testComplete[8] = true;
+				System.out.println(componentList[9]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		else if (!testComplete[9])
+		{
+			pn.retract(2);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[9] = true;
+				testComplete[9] = true;
+				System.out.println(componentList[10]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[9] = false;
+				testComplete[9] = true;
+				System.out.println(componentList[10]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//top arm solenoids
+		else if (!testComplete[10])
+		{
+			pn.extend(3);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[10] = true;
+				testComplete[10] = true;
+				System.out.println(componentList[11]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[10] = false;
+				testComplete[10] = true;
+				System.out.println(componentList[11]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		else if (!testComplete[11])
+		{
+			pn.retract(3);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[11] = true;
+				testComplete[11] = true;
+				System.out.println(componentList[12]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[11] = false;
+				testComplete[11] = true;
+				System.out.println(componentList[12]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		//winch retracts then extends
+		else if (!testComplete[12])
+		{
+			winch.set(true);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[12] = true;
+				testComplete[12] = true;
+				System.out.println(componentList[13]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[12] = false;
+				testComplete[12] = true;
+				System.out.println(componentList[13]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		else if (!testComplete[12])
+		{
+			winch.set(false);
+			if (driverJoy.buttonControlled(1))
+			{
+				testLog[12] = true;
+				testComplete[12] = true;
+				System.out.println(componentList[13]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+			else if (driverJoy.buttonControlled(2))
+			{
+				testLog[12] = false;
+				testComplete[12] = true;
+				System.out.println(componentList[13]);
+				System.out.println("press 1 for success, 2 for fail");
+			}
+		}
+		else if (!testComplete[13])
+		{
+			for (int x=0; x<12; x++)
+			{
+				System.out.println(componentList[x] + " - " +testLog[x]);
+			}
+			testComplete[13] = true;
+		}
+	}
+
+	/**
+	 * Code that controls the elbow
+	 */
+//	public void elbowControl(){
+//		if (coDriverJoy.buttonToggle(6))//This is for endgame lifting mode
+//		{
+//			lights.writeState(4);
+//			if (!coDriverJoy.buttonToggle(7))//Endgame rasing and extending
+//			{
+//				if (!coDriverJoy.buttonToggle(10))
+//				{
+//					if (elbow.getFeedbackValuePosition() > -1800)
+//					{
+//						elbow.setVoltage(-6);
+//					}
+//					else if (elbow.getFeedbackValuePosition() < -1800 && elbow.getFeedbackValuePosition() > -2231)
+//					{
+//						elbow.setVoltage(0);
+//					}
+//					else if (elbow.getRawVoltageOutput() < -2231)
+//					{
+//						elbow.setVoltage(1);
+//					}
+//				}
+//				else
+//				{
+//					if (coDriverJoy.joy1Axis(1) > 0)
+//					{
+//						elbow.setVoltage(-4*coDriverJoy.joy1Axis(1));
+//					}
+//					else if (coDriverJoy.joy1Axis(1) < 0)
+//					{
+//						elbow.setVoltage(-2*coDriverJoy.joy1Axis(1));
+//					}
+//					else
+//					{
+//						elbow.setVoltage(0);
+//					}
+//				}
+//			}
+//			else
+//			{
+//				pn.extend(2);
+//				pn.extend(3);
+//				winch.set(true);
+//				elbow.setVoltage(-0.5);
+//				if (coDriverJoy.buttonToggle(8))
+//				{
+//					pn.retract(2);
+//					pn.retract(3);
+//					armLiftTime.start();
+//					if (armLiftTime.get() > 1)
+//					{
+//						winch.set(false);
+//						armLiftTime.stop();
+//						lights.writeState(6);
+//					}
+//				}
+//			}
+//		}
+//		else if (coDriverJoy.buttonToggle(2))
+//		{
+//			if (elbow.getFeedbackValuePosition() > -588)
+//			{
+//				elbow.setVoltage(-5);
+//			}
+//			else if (elbow.getFeedbackValuePosition() < - 588 && elbow.getFeedbackValuePosition() > -700)
+//			{
+//				elbow.setVoltage(-3.3);
+//			}
+//			else
+//			{
+//				elbow.setVoltage(2);
+//			}
+//		}
+//		else
+//		{
+//			if (coDriverJoy.joy1Axis(1) > 0)
+//			{
+//				elbow.setVoltage(-4*coDriverJoy.joy1Axis(1));
+//			}
+//			else if (coDriverJoy.joy1Axis(1) < 0)
+//			{
+//				elbow.setVoltage(-2*coDriverJoy.joy1Axis(1));
+//			}
+//			else
+//			{
+//				elbow.setVoltage(0);
+//			}
+//		}
+//	}
+
+	/**
+	 * Code that controls all the shooter code.
+	 */
+	public void ballCollectionAndShooting(){
+		if(driverJoy.button(4)){//Collect ball
+			ballCollect.setVoltage(5);
+			rearShooter.setVoltage(5);
 			pn.extend(0);
 		}else{//Do nothing
 			pn.retract(0);
 			ballCollect.setVoltage(0);
 			rearShooter.setVoltage(0);
 		}
-		
-		if(driverJoy.button(1)){//Shoot ball
-				pn.extend(1);
-				ballShooterRectractTime.start();
+
+		if(driverJoy.button(3)){//Shoot ball
+			pn.extend(1);
+			ballShooterRectractTime.start();
 		}else if(ballShooterRectractTime.get()>1){
 			pn.retract(1);
 			ballShooterRectractTime.stop();
 			ballShooterRectractTime.reset();
 		}
-		
-		if(driverJoy.button(2)){
 
-			ballCollect.setVoltage(2);
-			rearShooter.setVoltage(-3);
-		}
-		
-		if (DriverStation.getInstance().getBatteryVoltage() < 12){
-			lights.lowBattery();
-		}
-		if (elbow.getFeedbackValuePosition() > -588)
-		{
-			elbow.setVoltage(-5);
-		}
-		else if (elbow.getFeedbackValuePosition() < - 588 && elbow.getFeedbackValuePosition() > -700)
-		{
-			elbow.setVoltage(-3.3);
-		}
-		else
-		{
-			elbow.setVoltage(2);
-		}
-	}
-
-	
-	public void testInit(){
-		drive.setDriveSystem(driveModes.TANK_DRIVE_PID);
-		drive.enableAll();
-	}
-	
-	/**
-	 * This function is called periodically during test mode
-	 */
-	public void testPeriodic() {
-		drive.drive(driverJoy.getData());		
+//		if(driverJoy.button(2)){
+//
+//			ballCollect.setVoltage(2);
+//			rearShooter.setVoltage(-3);
+//		}
 	}
 }
