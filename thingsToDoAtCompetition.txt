@@ -1,7 +1,7 @@
 Things to do at competition:
-1 (Tyler). Re-upload field.csv
-2 (Tyler). Change back all of the emulated joysticks for autonomous code.
-3 (Tyler). Change back the velocity to 55 inches/sec in MachineState.java
+1 (Tyler- Need Robot). Re-upload field.csv
+DONE				2 (Tyler). Change back all of the emulated joysticks for autonomous code.
+DONE				3 (Tyler). Change back the velocity to 55 inches/sec in MachineState.java
 4 (Tyler -Need robot). Make sure autonomous angle offset is the same for both robots.
 5 (Edgar -Need robot). Enable break mode on all the talons
 6 (Tyler - Need robot). Make sure that the robot can handle the 3 visual inputs at competition (it cannot right now).
@@ -19,6 +19,10 @@ Things to do at competition:
 18 (Edgar - Need Robot). Run wench thing for climbing, run the solenoid from digital IO or PWM
 19 (Tyler - Need Robot). In the automous mapping make sure that if the robot is offset by a small amount, ignore it
 20 (Edgar - Need Robot). Make sure that all the arduino states are legal for the match.
+21 (Tyler). Set compressor to button, so if voltage is getting low we can turn it off.
+22 (Tyler - Need Robot). Set camera to 320x160 and make sure it is at a static ip
+22. (Tyler - Need Robot). Set up both driver and co-driver controllers
+23. Edgar. Make sure the configuration file does not tell robot to go over wrong obstacle (ie if obstacle 0 doesn't exist don't go over it)
 
 
 

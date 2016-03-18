@@ -1,5 +1,5 @@
 
-package org.usfirst.frc.team1891.strongholdrobot2016;
+package org.usfirst.frc.team1891.robot;
 
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Compressor;
@@ -7,6 +7,8 @@ import edu.wpi.first.wpilibj.DigitalOutput;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.IterativeRobot;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.PWM;
+import edu.wpi.first.wpilibj.Relay;
 import edu.wpi.first.wpilibj.Timer;
 import java.util.LinkedList;
 import org.usfirst.frc.team1891.arduino.Arduino;
@@ -29,12 +31,12 @@ import org.usfirst.frc.team1891.visionsystem.RobotCentering;
  * creating this project, you must also update the manifest file in the resource
  * directory.
  */
-public class StrongholdRobot_2016 extends IterativeRobot {
+public class Robot extends IterativeRobot {
 
 
 	RobotCentering centerRobo;//This is the class that will control all robot centering code.
 	JoystickControl driverJoy;//, coDriverJoy;//The driver joystick.
-	Joystick coDriverJoy;
+	JoystickControl coDriverJoy;
 	DriveSystem drive;//The driver control system, all driving will be done through this class.
 	LinkedList<MotorAndSide> motors;//The linked list that the drive system requres for all motors
 	TalonSRX ballCollect;//The ball collector SRX, this is the talon that is in the front of the robot.
@@ -51,11 +53,14 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	Arduino lights;//This is the class that controls the arduino lights.
 	boolean printedState1=false, printedState2=false, printedState3 =false, printedState4 =false, printedState5 =false, printedState6=false, printedState7=false;//Boolean flags for auto print statements.
 	FieldConfig preGameConfig;//Class that controls pregame configuration.
-	DigitalOutput winch;//Used to extend and retract the wench in teleop mode
+	Relay winch;//Used to extend and retract the wench in teleop mode
 	boolean[] testLog;//Just saves test data, used in test periodic
 	boolean[] testComplete;//Tracks test progress, used in test periodic.
 	String[] componentList;//List of the test numbers, used in test periodic
 	Timer armLiftTime;//Used to calibrate timeing for lifting
+	boolean elbowWinchTimer=false;//Keeps armLiftTime from being called twice
+	double elbowStartingPos;//Used to keep constant values for the arm position
+	double elbowDelta = -1845;//The range of elbow values
 	/**
 	 * Boolean to tell if the ball has been fired or not.
 	 */
@@ -66,8 +71,9 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 */
 	public void robotInit() {
 		driverJoy = new JoystickControl();//Joystick for the driver
-		driverJoy.init(new Joystick(1), new Joystick(2));//Instantiate joystick for the driver, make sure the co-driver controller is not on port 0 or 1.
-//		coDriverJoy = new Joystick(2);
+		driverJoy.init(new Joystick(0), new Joystick(1));//Instantiate joystick for the driver, make sure the co-driver controller is not on port 0 or 1.
+		coDriverJoy = new JoystickControl();
+		coDriverJoy.init(new Joystick(2), new Joystick(3));
 		motors = new LinkedList<MotorAndSide>();//The list of motors to be passed to the drive system
 		try {
 			motors.add(new MotorAndSide(new TalonSRX(new CANTalon(4)), "RIGHT", true));//Has encoder
@@ -93,7 +99,10 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		lights = new Arduino(4);//Instatiate the arduino controller
 		elbow = new TalonSRX(new CANTalon(7));//Instantiate the motor controller for the elbow.
 		elbow.initVoltage();//Initate the arm motor controller in voltage mode.
-		winch = new DigitalOutput(0);
+		winch = new Relay(0);//Port that the wench is on
+		ballShooterRectractTime = new Timer();//Timer for the piston that shoots the ball to retract
+		preGameConfig= new FieldConfig();//The configuration that takes place before auto
+		armLiftTime = new Timer();//Used when climbing in teleop
 	}
 
 
@@ -133,96 +142,97 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 */
 	public void autonomousPeriodic() {	
 
-		autoMachine.update();
-		try {
-			autoState=autoMachine.getState();
-		} catch (InvalidStateException e) {
-			e.printStackTrace();
-
-		}
-
-		switch(autoState){
-		case 0://Finding crossable defense
-			System.out.println("State 0");
-			break;
-		case 1:// Routing to defense
-			if(!printedState1){
-				System.out.println("State 1");
-				printedState1=true;
-			}
-			autoMachine.findShotestPath();
-
-			break;
-		case 2://Moving to defense
-			if(!printedState2){
-				System.out.println("State 2");
-				printedState2=true;
-			}
-			drive.drive(new JoyVector(-0.15,-1,0,0));//Go forwards
-			break;
-		case 3://Crossing defense
-			if(!printedState3){
-				System.out.println("State 3");
-				printedState3=true;
-			}
-			if(autoMachine.isTurnLeft()){
-				drive.drive(new JoyVector(-0.3,0,0,0));
-			}else if(autoMachine.isTurnRight()){
-				drive.drive(new JoyVector(0.3,0,0,0));
-			}else{
-				if(!autoStateThreeQuickStop){//Do a quick stop to stop the turning.
-					drive.drive(new JoyVector(0,0,0,0));
-					Timer.delay(0.1);
-					autoStateThreeQuickStop=true;
-				}
-				drive.drive(new JoyVector(-0.15,-1,0,0));
-			}
-			break;
-		case 4://Moving to shooting postion
-			if(!printedState4){
-				System.out.println("State 4");
-				printedState4=true;
-			}
-			drive.drive(new JoyVector(0,0,0,0));
-			if(autoMachine.isTurnLeft()){
-				drive.drive(new JoyVector(-0.3,0,0,0));
-			}else if(autoMachine.isTurnRight()){
-				drive.drive(new JoyVector(0.3,0,0,0));
-			}else{
-				if(!autoStateFourQuickStop){//Do a quick stop to stop the turning.
-					drive.drive(new JoyVector(0,0,0,0));
-					Timer.delay(0.1);
-					autoStateFourQuickStop=true;
-				}
-				drive.drive(new JoyVector(-0.15,-1,0,0));
-			}
-			break;
-
-		case 5://Finding goal target
-			if(!printedState5){
-				System.out.println("State 5");
-				printedState5=true;
-			}
-			JoyVector tmp = centerRobo.centerRobot();
-			if(tmp!=null){
-				drive.drive(tmp);
-			}
-			break;
-		case 6://Firing at target
-			if(!printedState6){
-				System.out.println("State 6");
-				printedState6=true;
-			}
-			//Firing code
-			break;
-		case 7://End autonomous 
-			if(!printedState7){
-				System.out.println("State 7");
-				printedState7=true;
-			}
-			//#Dance
-			break;
-		}
+		elbowStartingPos = elbow.getFeedbackValuePosition();
+//		autoMachine.update();
+//		try {
+//			autoState=autoMachine.getState();
+//		} catch (InvalidStateException e) {
+//			e.printStackTrace();
+//
+//		}
+//
+//		switch(autoState){
+//		case 0://Finding crossable defense
+//			System.out.println("State 0");
+//			break;
+//		case 1:// Routing to defense
+//			if(!printedState1){
+//				System.out.println("State 1");
+//				printedState1=true;
+//			}
+//			autoMachine.findShotestPath();
+//
+//			break;
+//		case 2://Moving to defense
+//			if(!printedState2){
+//				System.out.println("State 2");
+//				printedState2=true;
+//			}
+//			drive.drive(new JoyVector(-0.15,-1,0,0));//Go forwards
+//			break;
+//		case 3://Crossing defense
+//			if(!printedState3){
+//				System.out.println("State 3");
+//				printedState3=true;
+//			}
+//			if(autoMachine.isTurnLeft()){
+//				drive.drive(new JoyVector(-0.3,0,0,0));
+//			}else if(autoMachine.isTurnRight()){
+//				drive.drive(new JoyVector(0.3,0,0,0));
+//			}else{
+//				if(!autoStateThreeQuickStop){//Do a quick stop to stop the turning.
+//					drive.drive(new JoyVector(0,0,0,0));
+//					Timer.delay(0.1);
+//					autoStateThreeQuickStop=true;
+//				}
+//				drive.drive(new JoyVector(-0.15,-1,0,0));
+//			}
+//			break;
+//		case 4://Moving to shooting postion
+//			if(!printedState4){
+//				System.out.println("State 4");
+//				printedState4=true;
+//			}
+//			drive.drive(new JoyVector(0,0,0,0));
+//			if(autoMachine.isTurnLeft()){
+//				drive.drive(new JoyVector(-0.3,0,0,0));
+//			}else if(autoMachine.isTurnRight()){
+//				drive.drive(new JoyVector(0.3,0,0,0));
+//			}else{
+//				if(!autoStateFourQuickStop){//Do a quick stop to stop the turning.
+//					drive.drive(new JoyVector(0,0,0,0));
+//					Timer.delay(0.1);
+//					autoStateFourQuickStop=true;
+//				}
+//				drive.drive(new JoyVector(-0.15,-1,0,0));
+//			}
+//			break;
+//
+//		case 5://Finding goal target
+//			if(!printedState5){
+//				System.out.println("State 5");
+//				printedState5=true;
+//			}
+//			JoyVector tmp = centerRobo.centerRobot();
+//			if(tmp!=null){
+//				drive.drive(tmp);
+//			}
+//			break;
+//		case 6://Firing at target
+//			if(!printedState6){
+//				System.out.println("State 6");
+//				printedState6=true;
+//			}
+//			//Firing code
+//			break;
+//		case 7://End autonomous 
+//			if(!printedState7){
+//				System.out.println("State 7");
+//				printedState7=true;
+//			}
+//			//#Dance
+//			break;
+//		}
 
 	}
 
@@ -249,41 +259,9 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	 */
 	public void teleopPeriodic() {
 		drive.drive(driverJoy.getData());
-
-
-//		this.elbowControl();
+		
+		this.elbowControl();
 		this.ballCollectionAndShooting();
-//		System.out.println(coDriverJoy.getRawButton(1));
-//		if(coDriverJoy.getRawButton(4)){//Collect ball
-//			ballCollect.setVoltage(5);
-//			rearShooter.setVoltage(5);
-//			pn.extend(0);
-//		}else{//Do nothing
-//			pn.retract(0);
-//			ballCollect.setVoltage(0);
-//			rearShooter.setVoltage(0);
-//		}
-//
-//		if(coDriverJoy.getRawButton(3)){//Shoot ball
-//			pn.extend(1);
-//			ballShooterRectractTime.start();
-//		}else if(ballShooterRectractTime.get()>1){
-//			pn.retract(1);
-//			ballShooterRectractTime.stop();
-//			ballShooterRectractTime.reset();
-//		}
-		if (elbow.getFeedbackValuePosition() > -588)
-			{
-				elbow.setVoltage(-5);
-			}
-			else if (elbow.getFeedbackValuePosition() < - 588 && elbow.getFeedbackValuePosition() > -700)
-			{
-				elbow.setVoltage(-3.3);
-			}
-			else
-			{
-				elbow.setVoltage(2);
-			}
 	}
 
 
@@ -554,7 +532,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		//winch retracts then extends
 		else if (!testComplete[12])
 		{
-			winch.set(true);
+//			winch.setRaw(true);
 			if (driverJoy.buttonControlled(1))
 			{
 				testLog[12] = true;
@@ -572,7 +550,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 		}
 		else if (!testComplete[12])
 		{
-			winch.set(false);
+//			winch.setRaw(false);
 			if (driverJoy.buttonControlled(1))
 			{
 				testLog[12] = true;
@@ -601,100 +579,110 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 	/**
 	 * Code that controls the elbow
 	 */
-//	public void elbowControl(){
-//		if (coDriverJoy.buttonToggle(6))//This is for endgame lifting mode
-//		{
-//			lights.writeState(4);
-//			if (!coDriverJoy.buttonToggle(7))//Endgame rasing and extending
-//			{
-//				if (!coDriverJoy.buttonToggle(10))
-//				{
-//					if (elbow.getFeedbackValuePosition() > -1800)
-//					{
-//						elbow.setVoltage(-6);
-//					}
-//					else if (elbow.getFeedbackValuePosition() < -1800 && elbow.getFeedbackValuePosition() > -2231)
-//					{
-//						elbow.setVoltage(0);
-//					}
-//					else if (elbow.getRawVoltageOutput() < -2231)
-//					{
-//						elbow.setVoltage(1);
-//					}
-//				}
-//				else
-//				{
-//					if (coDriverJoy.joy1Axis(1) > 0)
-//					{
-//						elbow.setVoltage(-4*coDriverJoy.joy1Axis(1));
-//					}
-//					else if (coDriverJoy.joy1Axis(1) < 0)
-//					{
-//						elbow.setVoltage(-2*coDriverJoy.joy1Axis(1));
-//					}
-//					else
-//					{
-//						elbow.setVoltage(0);
-//					}
-//				}
-//			}
-//			else
-//			{
-//				pn.extend(2);
-//				pn.extend(3);
-//				winch.set(true);
-//				elbow.setVoltage(-0.5);
-//				if (coDriverJoy.buttonToggle(8))
-//				{
-//					pn.retract(2);
-//					pn.retract(3);
-//					armLiftTime.start();
-//					if (armLiftTime.get() > 1)
-//					{
-//						winch.set(false);
-//						armLiftTime.stop();
-//						lights.writeState(6);
-//					}
-//				}
-//			}
-//		}
-//		else if (coDriverJoy.buttonToggle(2))
-//		{
-//			if (elbow.getFeedbackValuePosition() > -588)
-//			{
-//				elbow.setVoltage(-5);
-//			}
-//			else if (elbow.getFeedbackValuePosition() < - 588 && elbow.getFeedbackValuePosition() > -700)
-//			{
-//				elbow.setVoltage(-3.3);
-//			}
-//			else
-//			{
-//				elbow.setVoltage(2);
-//			}
-//		}
-//		else
-//		{
-//			if (coDriverJoy.joy1Axis(1) > 0)
-//			{
-//				elbow.setVoltage(-4*coDriverJoy.joy1Axis(1));
-//			}
-//			else if (coDriverJoy.joy1Axis(1) < 0)
-//			{
-//				elbow.setVoltage(-2*coDriverJoy.joy1Axis(1));
-//			}
-//			else
-//			{
-//				elbow.setVoltage(0);
-//			}
-//		}
-//	}
+	public void elbowControl(){
+		winch.setDirection(Relay.Direction.kForward);
+		if (coDriverJoy.buttonToggle(6))//This is for endgame lifting mode
+		{
+			lights.writeState(4);
+			if (!coDriverJoy.buttonToggle(7))//Endgame rasing and extending
+			{
+				if (!coDriverJoy.buttonToggle(10))
+				{
+					if (elbow.getFeedbackValuePosition() > elbowStartingPos + 0.75*elbowDelta)
+					{
+						elbow.setVoltage(-6);
+					}
+					else if (elbow.getFeedbackValuePosition() < elbowStartingPos + 0.75*elbowDelta && elbow.getFeedbackValuePosition() > elbowStartingPos + 0.9*elbowDelta)
+					{
+						elbow.setVoltage(0);
+					}
+					else if (elbow.getRawVoltageOutput() < elbowStartingPos + 0.9*elbowDelta)
+					{
+						elbow.setVoltage(1);
+					}
+				}
+				else
+				{
+					if (coDriverJoy.getData().getY_comp() < 0)
+					{
+						elbow.setVoltage(-4*coDriverJoy.joy1Axis(1));
+					}
+					else if (coDriverJoy.getData().getY_comp() > 0)
+					{
+						elbow.setVoltage(-8*coDriverJoy.getData().getY_comp());
+					}
+					else
+					{
+						elbow.setVoltage(0);
+					}
+				}
+			}
+			else
+			{
+				
+				if (coDriverJoy.buttonToggle(8))
+				{
+					pn.retract(2);
+					pn.retract(3);
+					if(!elbowWinchTimer){
+						armLiftTime.start();
+						elbowWinchTimer=true;
+					}
+					if (armLiftTime.get() > 0.5)
+					{
+						winch.set(Relay.Value.kOn);
+						armLiftTime.stop();
+						armLiftTime.reset();
+						lights.writeState(6);
+					}
+				}else{
+					pn.extend(2);
+					pn.extend(3);
+					elbow.setVoltage(-3);
+				}
+			}
+		}
+		else if (coDriverJoy.buttonToggle(2))
+		{
+			
+			if (elbow.getFeedbackValuePosition() > elbowStartingPos + 0.3*elbowDelta)
+			{
+				elbow.setVoltage(-5);
+			}
+			else if (elbow.getFeedbackValuePosition() < elbowStartingPos + 0.3*elbowDelta && elbow.getFeedbackValuePosition() > elbowStartingPos + 0.4*elbowDelta)
+			{
+				elbow.setVoltage(-3.3);
+			}
+			else
+			{
+				elbow.setVoltage(2);
+			}
+		}
+		else
+		{
+			if (coDriverJoy.getData().getY_comp() < 0)
+			{
+				elbow.setVoltage(-4*coDriverJoy.joy1Axis(1));
+			}
+			else if (coDriverJoy.getData().getY_comp() > 0)
+			{
+				elbow.setVoltage(-8*coDriverJoy.getData().getY_comp());
+			}
+			else
+			{
+				elbow.setVoltage(0);
+			}
+		}
+		System.out.println("Min: "+elbowStartingPos);
+		System.out.println("Max: "+elbow.getFeedbackValuePosition());
+		System.out.println("Delta: "+(elbow.getFeedbackValuePosition()-elbowStartingPos));
+	}
 
 	/**
 	 * Code that controls all the shooter code.
 	 */
 	public void ballCollectionAndShooting(){
-		if(driverJoy.button(4)){//Collect ball
+		if(coDriverJoy.button(4)){//Moves shooter into ball collecting position
 			ballCollect.setVoltage(5);
 			rearShooter.setVoltage(5);
 			pn.extend(0);
@@ -704,7 +692,7 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 			rearShooter.setVoltage(0);
 		}
 
-		if(driverJoy.button(3)){//Shoot ball
+		if(driverJoy.button(1)){//Extends the piston to shoot the ball, else it will retract after a second of extension
 			pn.extend(1);
 			ballShooterRectractTime.start();
 		}else if(ballShooterRectractTime.get()>1){
@@ -713,10 +701,9 @@ public class StrongholdRobot_2016 extends IterativeRobot {
 			ballShooterRectractTime.reset();
 		}
 
-//		if(driverJoy.button(2)){
-//
-//			ballCollect.setVoltage(2);
-//			rearShooter.setVoltage(-3);
-//		}
+		if(coDriverJoy.button(3)){//Begins spinner the shooting wheels in the correct direction to shoot
+			ballCollect.setVoltage(5);
+			rearShooter.setVoltage(-6);
+		}
 	}
 }
